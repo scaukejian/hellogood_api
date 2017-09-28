@@ -2,9 +2,9 @@ package com.hellogood.exception;
 
 /**
  * 自定义异常类
- * @author fukangwen
+ * @author kejian
  * @version 1.0
- * @date 2016-02-18
+ * @date 2017-09-18
  *
  */
 public class UserOperateException extends RuntimeException {

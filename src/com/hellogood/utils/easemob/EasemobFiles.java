@@ -42,7 +42,7 @@ public class EasemobFiles {
          * https://a1.easemob.com/easemob-playground/test1/chatfiles
          */
 //        File uploadImgFile = new File("/home/lynch/Pictures/24849.jpg");
-        File uploadImgFile = new File("/Users/yanyuan/Downloads/testUpload.jpeg");
+        File uploadImgFile = new File("/Users/kejian/Downloads/testUpload.jpeg");
         ObjectNode imgDataNode = mediaUpload(uploadImgFile);
         if (null != imgDataNode) {
             LOGGER.info("上传图片文件: " + imgDataNode.toString());

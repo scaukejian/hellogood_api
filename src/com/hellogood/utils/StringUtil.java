@@ -7,7 +7,7 @@ import com.hellogood.exception.BusinessException;
 
 /**
  * 字符操作工具类
- * @author yanyuan
+ * @author kejian
  * @date 2015-5-13
  *
  */

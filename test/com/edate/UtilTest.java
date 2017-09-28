@@ -3,7 +3,7 @@ package com.hellogood;
 import org.apache.commons.codec.digest.DigestUtils;
 
 /**
- * Created by Administrator on 2015/5/18.
+ * Created by Administrator on 2017/5/18.
  */
 public class UtilTest {
     public static void main(String[] args){

@@ -1,14 +1,14 @@
 package com.hellogood.http.controller;
 
-import com.edate.ws.constant.Code;
-import com.edate.ws.constant.ResponseCode;
-import com.edate.ws.constant.TokenConstants;
-import com.edate.ws.constant.UserInfoConstants;
-import com.edate.ws.domain.*;
-import com.edate.ws.exception.BusinessException;
-import com.edate.ws.http.vo.LoginVO;
-import com.edate.ws.http.vo.RegisterVO;
-import com.edate.ws.service.*;
+import com.hellogood.constant.Code;
+import com.hellogood.constant.ResponseCode;
+import com.hellogood.constant.TokenConstants;
+import com.hellogood.constant.UserConstants;
+import com.hellogood.domain.*;
+import com.hellogood.exception.BusinessException;
+import com.hellogood.http.vo.LoginVO;
+import com.hellogood.http.vo.RegisterVO;
+import com.hellogood.service.*;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +21,7 @@ import java.util.*;
 
 /**
  * 用户登录Controller
- * @author yanyuan
- *
+ * @author kejian
  */
 @Controller
 @RequestMapping(value = "/auth")
@@ -30,19 +29,13 @@ public class LoginController extends BaseController{
 	@Autowired
 	private LoginService loginService;
 	@Autowired
-	private UserInfoService userInfoService;
+	private UserService userService;
 	@Autowired
 	private SmsCodeService smsCodeService;
     @Autowired
     private LoginRecordsService LoginRecordsService;
     @Autowired
-    private InviteRegisterService inviteRegisterService;
-    @Autowired
     private TokenService tokenService;
-    @Autowired
-    private UserDatumService userDatumService;
-    @Autowired
-    private UserCheckService userCheckService;
     @Autowired
     private UserPhotoService userPhotoService;
     @Autowired
@@ -52,7 +45,6 @@ public class LoginController extends BaseController{
    
 	/**
 	 * 用户授权验证
-	 * 
 	 * @param register
 	 * @throws JSONException
 	 * @throws IOException
@@ -86,67 +78,25 @@ public class LoginController extends BaseController{
 			map.put(MESSAGE, "账号或者密码错误");
 			return map;
 		}
-		if(loginInfo.getBlacklist() > 0){
-			map.put(STATUS, STATUS_FAILED);
-			map.put(MESSAGE_CODE, ResponseCode.AUTH_IN_BLACKlIST.getCode());
-			map.put(MESSAGE, "无法成功登陆，若有疑问，请致电：4000-520-029");
-			return map;
-		}
 		/**
 		 * 第三方绑定了
 		 */
-		UserInfo userInfo = userInfoService.getUserInfoByPhone(thirdPartyLogin.getPhone());
-		//已注册
-		if(UserInfoConstants.USERINFO_REGISTER.equals(userInfo.getCheckStatus())){
-			if(userInfo.getFirstName()	== null  || userInfo.getUserName()==null){
-				map.put(MESSAGE, "资料未完善");
-				map.put(MESSAGE_CODE, ResponseCode.USERINFO_REQUIRED.getCode());
-				map.put(USER_STATUS, ResponseCode.USERINFO_REQUIRED.getCode());
-			}
-			
-			//头像和形象照是一起同时上传的
-			else if(StringUtils.isBlank(userPhotoService.getUserPhotoName(userInfo.getId(), false))){
-				map.put(MESSAGE, "头像未上传");
-				map.put(MESSAGE_CODE, ResponseCode.USERINFO_HEAD_PHOTO_NO_EXIST.getCode());
-				map.put(USER_STATUS, ResponseCode.USERINFO_HEAD_PHOTO_NO_EXIST.getCode());
-			}
-		}
-		//拒绝
-		else if(UserInfoConstants.USERINFO_REFUSE.equals(userInfo.getCheckStatus())){
-			map.put("refuseStatus", 1);//拒绝状态
-			if(StringUtils.isEmpty(userInfo.getSex())){
-				map.put(MESSAGE_CODE, ResponseCode.USERINFO_SEX_EMPTY.getCode());
-			}else{
-				UserCheck userCheck = userCheckService.getRefuseRemark(userInfo.getId());
-				if(userCheck == null)
-					logger.info("审核表用户状态跟用户信息的状态不一致");
-				else{
-					map.put(MESSAGE, userCheck.getRemarks());
-					
-					//把错误代码返回
-					if(userCheck.getCode() != null)
-						map.put(MESSAGE_CODE, userCheck.getCode());
-				}
-			}
-		}
+		User user = userService.getUserByPhone(thirdPartyLogin.getPhone());
 		//更新登录时间并记录登录信息
 		LoginVO loginVO = new LoginVO();
 		loginVO.setClientType(register.getType());
 		String token = loginService.updateLoginAndRecord(loginInfo, loginVO);
 		map.put(STATUS, STATUS_SUCCESS);
-		map.put("userId", userInfo.getId());
+		map.put("userId", user.getId());
 		map.put("loginStatus", 1);
 		//用户前缀
-		map.put("imUserName", userInfo.getUserCode());
+		map.put("imUserName", user.getUserCode());
 		map.put("token", token);
-		//创建环信账号
-		map.put("easeMobUserVO", loginService.createImUser(userInfo.getId(), userInfo.getUserCode()));
 		return map;
 	}
 	
 	/**
 	 * 用户注册
-	 * 
 	 * @param register
 	 * @throws JSONException
 	 * @throws IOException
@@ -166,7 +116,6 @@ public class LoginController extends BaseController{
         if("invite".equals(register.getClientType()) && register.getInviteUid() == null){
         	register.setClientType("official");
         }
-        	
 		Map<String, Object> result = new HashMap<String, Object>();
 		if (loginService.isExist(register.getMobile())) {
 			// 提示用户已存在
@@ -174,14 +123,10 @@ public class LoginController extends BaseController{
 			result.put(MESSAGE, "该号码已注册！");
 			return result;
 		}
-
 		// 不存在则进入注册
 		SmsCodeExample smsExample = new SmsCodeExample();
 		smsExample.createCriteria().andPhoneEqualTo(mobile);
-		
-		
 		//TODO 屏蔽校验码校验
-		/*
 		SmsCode sms = smsCodeService.select(smsExample);
 		if (!StringUtils.equals(register.getSmsCode(), String.valueOf(sms.getCode()))) {
 			result.put(STATUS, STATUS_FAILED);
@@ -189,7 +134,6 @@ public class LoginController extends BaseController{
 			result.put("timestamp", sms.getTimestamp());// 时间戳
 			return result;
 		}
-		*/
         if(StringUtils.isBlank(register.getClientType())){
             throw new BusinessException("客户端类型不能为空");
         }
@@ -200,15 +144,13 @@ public class LoginController extends BaseController{
         else
         	login.setPassword(md5Encrypt(password, mobile));
         login.setPhone(mobile);
-        UserInfo userInfo = loginService.saveAndUpdate(login, register);
+        User user = loginService.saveAndUpdate(login, register);
 
 		result.put(STATUS, STATUS_SUCCESS);
-		result.put("userId", userInfo.getId());
+		result.put("userId", user.getId());
 		//用户前缀
-		result.put("imUserName", userInfo.getUserCode());
-		result.put("token", tokenService.insertOrUpdate(userInfo.getId(), TokenConstants.TOKEN_INVALID_INSERT_NEW));
-		//创建环信账号
-		result.put("easeMobUserVO", loginService.createImUser(userInfo.getId(), userInfo.getUserCode()));
+		result.put("imUserName", user.getUserCode());
+		result.put("token", tokenService.insertOrUpdate(user.getId(), TokenConstants.TOKEN_INVALID_INSERT_NEW));
 		logger.info(result.toString());
 		return result;
 	}
@@ -264,12 +206,6 @@ public class LoginController extends BaseController{
 			map.put(MESSAGE, "账号或者密码错误");
 			return map;
 		}
-		if(loginInfo.getBlacklist() > 0){
-			map.put(STATUS, STATUS_FAILED);
-			map.put(MESSAGE_CODE, ResponseCode.AUTH_IN_BLACKlIST.getCode());
-			map.put(MESSAGE, "无法成功登陆，若有疑问，请致电：4000-520-029");
-			return map;
-		}
 		//md5（Ios，h5传过来就是MD5加密了）
 		if("Android".equals(loginVO.getClientType()))
 			password = md5Encrypt(password, mobile);
@@ -280,47 +216,7 @@ public class LoginController extends BaseController{
 			return map;
 		}
         
-		UserInfo user = userInfoService.getUserInfo(loginInfo.getUserId());
-		//已注册
-		if(UserInfoConstants.USERINFO_REGISTER.equals(user.getCheckStatus())){
-			if(user.getFirstName()	== null  || user.getUserName()==null){
-				map.put(MESSAGE, "资料未完善");
-				map.put(MESSAGE_CODE, ResponseCode.USERINFO_REQUIRED.getCode());
-				map.put(USER_STATUS, ResponseCode.USERINFO_REQUIRED.getCode());
-			}
-			
-			//头像和形象照是一起同时上传的
-			else if(StringUtils.isBlank(userPhotoService.getUserPhotoName(user.getId(), false))){
-				map.put(MESSAGE, "头像未上传");
-				map.put(MESSAGE_CODE, ResponseCode.USERINFO_HEAD_PHOTO_NO_EXIST.getCode());
-				map.put(USER_STATUS, ResponseCode.USERINFO_HEAD_PHOTO_NO_EXIST.getCode());
-			}
-			
-			else if(!userDatumService.validateIDCard(user.getId())){
-				map.put(MESSAGE, "身份证未上传");
-				map.put(MESSAGE_CODE, ResponseCode.USERINFO_IDCARD.getCode());
-				map.put(USER_STATUS, ResponseCode.USERINFO_IDCARD.getCode());
-			}
-		}
-		//拒绝
-		else if(UserInfoConstants.USERINFO_REFUSE.equals(user.getCheckStatus())){
-			map.put("refuseStatus", 1);//拒绝状态
-			UserInfo userInfo = userInfoService.getUserInfo(loginInfo.getUserId());
-			if(StringUtils.isEmpty(userInfo.getSex())){
-				map.put(MESSAGE_CODE, ResponseCode.USERINFO_SEX_EMPTY.getCode());
-			}else{
-				UserCheck userCheck = userCheckService.getRefuseRemark(user.getId());
-				if(userCheck == null)
-					logger.info("审核表用户状态跟用户信息的状态不一致");
-				else{
-					map.put(MESSAGE, userCheck.getRemarks());
-					
-					//把错误代码返回
-					if(userCheck.getCode() != null)
-						map.put(MESSAGE_CODE, userCheck.getCode());
-				}
-			}
-		}
+		User user = userService.getUser(loginInfo.getUserId());
 		//判断ios是否需要更新到最新版
 		logger.info("记录登录信息:" + loginVO.toString());
 		List<BaseData> baseList = baseDataService.getData(Code.DATA_TYPE_IOS_FORCE_UPDATE_VERSION);
@@ -345,11 +241,9 @@ public class LoginController extends BaseController{
 		//用户前缀
 		map.put("imUserName", user.getUserCode());
 		map.put("token", token);
-		map.put("easeMobUserVO", loginService.getEaseMobUserVO(user.getId()));
 		map.put(STATUS, STATUS_SUCCESS);
 		return map;
 	}
-	
 	
 	/**
 	 * 修改密码
@@ -463,14 +357,14 @@ public class LoginController extends BaseController{
 	@RequestMapping(value = "/getCode/{userId}.do")
 	public Map<String,Object> getCodeByUserId(@PathVariable Integer userId) throws IOException{
 		Map<String, Object> map = new HashMap<String, Object>();
-		map.put("edateNo", userInfoService.getUserInfo(userId).getUserCode());//返回易悦号
+		map.put("edateNo", userService.getUser(userId).getUserCode());//返回易悦号
 		map.put(STATUS, STATUS_SUCCESS);
 		return map;
 	}
 	
 	/**
 	 * 通过filter后转发的地址，给客户端返回错误信号
-	 * author：fukangwen
+	 * author：kejian
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/error.do")
@@ -511,21 +405,6 @@ public class LoginController extends BaseController{
 	public Map<String, Object> updateLoginInfo(@RequestBody LoginVO loginVO) throws JSONException, IOException {
 		Map<String, Object> map = new HashMap<String, Object>();
 		loginService.updateLoginByUserId(loginVO);
-		map.put(STATUS, STATUS_SUCCESS);
-		return map;
-	}
-	
-	
-	/**
-	 * 获取环信账号，没有就创建
-	 * @param userId
-	 * @return
-	 */
-	@ResponseBody
-	@RequestMapping(value = "/getImUser/{userId}.do")
-	public Map<String,Object> getImUser(@PathVariable Integer userId){
-		Map<String, Object> map = new HashMap<String, Object>();
-		map.put(DATA, loginService.getEaseMobUserVO(userId));
 		map.put(STATUS, STATUS_SUCCESS);
 		return map;
 	}
@@ -573,7 +452,7 @@ public class LoginController extends BaseController{
     	}
     	
 		//判断手机是否注册了，没有就生成一个
-    	UserInfo user = null;
+    	User user = null;
     	Integer refuseStatus = 0;
     	if(!loginService.isExist(loginVO.getMobile())){
     		//根据手机号码生成一个
@@ -581,19 +460,7 @@ public class LoginController extends BaseController{
     	}else{
     		//判断是否黑名单或者拒绝状态
 			Login loginInfo = loginService.getLoginByPhone(loginVO.getMobile());
-			if(loginInfo.getBlacklist() > 0){
-				map.put(STATUS, STATUS_FAILED);
-				map.put(MESSAGE_CODE, ResponseCode.AUTH_IN_BLACKlIST.getCode());
-				map.put(MESSAGE, "无法成功登陆，若有疑问，请致电：4000-520-029");
-				return map;
-			}
-			
-			user = userInfoService.getUserInfo(loginInfo.getUserId());
-			
-			//拒绝
-			if(UserInfoConstants.USERINFO_REFUSE.equals(user.getCheckStatus())){
-				map.put("refuseStatus", 1);//拒绝状态
-			}
+			user = userService.getUser(loginInfo.getUserId());
     	}
     	
 		//绑定
@@ -611,7 +478,6 @@ public class LoginController extends BaseController{
 		//用户前缀
 		map.put("imUserName", user.getUserCode());
 		map.put("token", token);
-		map.put("easeMobUserVO", loginService.getEaseMobUserVO(user.getId()));
 		map.put(STATUS, STATUS_SUCCESS);
 		return map;
 	}

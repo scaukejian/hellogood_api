@@ -6,7 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- * Created by yanyuan on 2015/5/21.
+ * Created by kejian on 2017/5/21.
  */
 public class UtilDateConverter implements Converter {
     public Object convert(Class type, Object value) {

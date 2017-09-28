@@ -2,9 +2,9 @@ package com.hellogood.exception;
 
 /**
  * 自定义异常类
- * @author fukangwen
+ * @author kejian
  * @version 1.0
- * @date 2016-03-14
+ * @date 2017-09-14
  *
  */
 public class UserRegisterOperateException extends RuntimeException {

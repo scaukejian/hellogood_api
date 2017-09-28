@@ -23,8 +23,8 @@ import com.hellogood.utils.DateUtil;
 import com.github.pagehelper.PageInfo;
 
 /**
- * @author yanyuan
- * @date 2015/4/29
+ * @author kejian
+ * @date 2017/4/29
  * @version 1.0
  */
 

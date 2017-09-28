@@ -1,7 +1,7 @@
 package com.hellogood.enumeration;
 
 /**
- * Created by yanyuan on 2017/4/19.
+ * Created by kejian on 2017/4/19.
  */
 public enum ApiName {
     LOGIN("login", "登录"),

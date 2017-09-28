@@ -4,7 +4,7 @@ import com.hellogood.enumeration.ErrorCode;
 
 /**
  * 校验异常,返回错误代码
- * Created by yanyuan on 15/11/21.
+ * Created by kejian on 2017/11/21.
  */
 public class CheckingException extends RuntimeException {
 

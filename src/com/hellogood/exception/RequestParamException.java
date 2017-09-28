@@ -1,7 +1,7 @@
 package com.hellogood.exception;
 
 /**
- * Created by yanyuan on 2016/11/16.
+ * Created by kejian on 2017/11/16.
  */
 public class RequestParamException extends RuntimeException {
 

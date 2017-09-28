@@ -10,7 +10,7 @@
     <result column="status" property="status" jdbcType="INTEGER" />
   </resultMap>
   <select id="getListByPhone" parameterType="java.lang.String" resultMap="BaseResultMap">
-  	select * from api_sms_code where phone=#{0} for update
+    select * from api_sms_code where phone=#{0} for update
   </select>
   <sql id="Example_Where_Clause" >
     <where >
@@ -103,7 +103,7 @@
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="com.hellogood.domain.SmsCode"  useGeneratedKeys="true" keyProperty="id">
+  <insert id="insert" parameterType="com.hellogood.domain.SmsCode"  useGeneratedKeys="true" keyProperty="id" >
     insert into api_sms_code (id, user_id, phone, 
       code, timestamp, status
       )

@@ -1,7 +1,7 @@
 package com.hellogood.enumeration;
 
 /**
- * Created by yanyuan on 15/10/28.
+ * Created by kejian on 2017/10/28.
  */
 public enum BaseDataType {
 

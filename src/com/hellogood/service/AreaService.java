@@ -15,7 +15,7 @@ import com.hellogood.mapper.ProvinceMapper;
 
 /**
  * @Service
- * @author fukangwen
+ * @author kejian
  *
  */
 @Service

@@ -1,7 +1,7 @@
 package com.hellogood.http.vo;
 
 /**
- * Created by yanyuan on 15/11/16.
+ * Created by kejian on 2017/11/16.
  */
 public abstract class BaseVO<T> {
 

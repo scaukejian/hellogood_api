@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 /**
- * Created by yanyuan on 2015/5/21.
+ * Created by kejian on 2017/5/21.
  */
 public class BeaUtils extends BeanUtils{
 

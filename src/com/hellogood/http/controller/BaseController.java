@@ -24,8 +24,8 @@ import com.hellogood.exception.BusinessException;
 
 /**
  * 
- * @author yanyuan
- * @date 2015/04/30
+ * @author kejian
+ * @date 2017/04/30
  * @version 1.0
  *
  */

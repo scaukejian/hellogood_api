@@ -15,7 +15,7 @@ import com.hellogood.domain.Province;
 
 /**
  * 查询省份Controller
- * @author fukangwen
+ * @author kejian
  *
  */
 @Controller
@@ -30,7 +30,7 @@ public class ProvinceController extends BaseController{
 	 * @param @param request
 	 * @param @param response
 	 * @return void
-	 * @author fukangwen
+	 * @author kejian
 	 * @throws IOException 
 	 */
 	@RequestMapping(value = "/list.do")

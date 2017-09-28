@@ -22,7 +22,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 /**
- * Created by yanyuan on 2015/8/12.
+ * Created by kejian on 2017/8/12.
  */
 @Service
 public class RedisCacheManger{

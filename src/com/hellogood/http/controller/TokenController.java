@@ -15,7 +15,7 @@ import com.hellogood.service.TokenService;
 
 /**
  * Token Controller
- * @author fukangwen
+ * @author kejian
  *
  */
 @Controller
@@ -30,7 +30,7 @@ public class TokenController extends BaseController{
 	 * @Description: 重置token
 	 * @param @param request
 	 * @param @param response
-	 * @author fukangwen
+	 * @author kejian
 	 * @throws IOException 
 	 */
 	@RequestMapping(value = "/reset/{userId}.do")

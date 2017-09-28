@@ -2,7 +2,7 @@ package com.hellogood.constant;
 
 /**
  * 公共代码类
- * @author yanyuan
+ * @author kejian
  * @date 2015-5-8
  * @version 1.0
  *

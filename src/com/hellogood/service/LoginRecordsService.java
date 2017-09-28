@@ -13,7 +13,7 @@ import com.hellogood.http.vo.LoginVO;
 import com.hellogood.mapper.LoginRecordsMapper;
 
 /**
- * Created by yanyuan on 2015/5/13.
+ * Created by kejian on 2017/5/13.
  */
 
 /**

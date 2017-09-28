@@ -25,4 +25,6 @@ public interface LoginMapper {
     int updateByPrimaryKeySelective(Login record);
 
     int updateByPrimaryKey(Login record);
+
+    List<String> selectUnCreateUserCode();
 }

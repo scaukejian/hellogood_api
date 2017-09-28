@@ -1,6 +1,6 @@
 package com.hellogood.constant;
 
-public class UserInfoConstants {
+public class UserConstants {
 	
 	public static final String USERINFO_REGISTER = "已注册";
 	public static final String USERINFO_PASS = "通过";

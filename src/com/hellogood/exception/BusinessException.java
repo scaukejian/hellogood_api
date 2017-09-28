@@ -2,7 +2,7 @@ package com.hellogood.exception;
 
 /**
  * 自定义异常类
- * @author yanyuan
+ * @author kejian
  * @version 1.0
  * @date 2015-05-04
  *

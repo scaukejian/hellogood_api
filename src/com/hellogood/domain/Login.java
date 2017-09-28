@@ -9,8 +9,6 @@ public class Login {
 
     private String phone;
 
-    private Integer blacklist;
-
     private String phoneClient;
 
     private String password;
@@ -28,8 +26,6 @@ public class Login {
     private String apkVersion;
 
     private String clientInfo;
-
-    private String easemobPassword;
 
     private Date lastBootUpTime;
 
@@ -55,14 +51,6 @@ public class Login {
 
     public void setPhone(String phone) {
         this.phone = phone == null ? null : phone.trim();
-    }
-
-    public Integer getBlacklist() {
-        return blacklist;
-    }
-
-    public void setBlacklist(Integer blacklist) {
-        this.blacklist = blacklist;
     }
 
     public String getPhoneClient() {
@@ -135,14 +123,6 @@ public class Login {
 
     public void setClientInfo(String clientInfo) {
         this.clientInfo = clientInfo == null ? null : clientInfo.trim();
-    }
-
-    public String getEasemobPassword() {
-        return easemobPassword;
-    }
-
-    public void setEasemobPassword(String easemobPassword) {
-        this.easemobPassword = easemobPassword == null ? null : easemobPassword.trim();
     }
 
     public Date getLastBootUpTime() {

@@ -17,8 +17,7 @@ import com.hellogood.service.AreaService;
 
 /**
  * 城市Controller
- * @author fukangwen
- *
+ * @author kejian
  */
 @Controller
 @RequestMapping(value = "/area")
@@ -32,7 +31,7 @@ public class AreaController extends BaseController{
 	 * @param @param request
 	 * @param @param response
 	 * @return void
-	 * @author fukangwen
+	 * @author kejian
 	 * @throws IOException 
 	 */
 	@RequestMapping(value = "/list/{provinceCode}.do")

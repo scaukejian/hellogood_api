@@ -2,7 +2,7 @@ package com.hellogood.utils.weixinpay.util;
 
 /**
  * 异或加密
- * Created by yanyuan on 15/10/21.
+ * Created by kejian on 2017/10/21.
  */
 public class XorUtil {
 

@@ -2,7 +2,7 @@ package com.hellogood.enumeration;
 
 /**
  * 错误代码
- * Created by yanyuan on 15/11/21.
+ * Created by kejian on 2017/11/21.
  */
 public enum  ErrorCode {
 

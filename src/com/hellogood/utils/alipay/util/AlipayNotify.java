@@ -1,7 +1,7 @@
 package com.hellogood.utils.alipay.util;
 
 /**
- * Created by yanyuan on 16/3/22.
+ * Created by kejian on 16/3/22.
  */
 
 import com.hellogood.utils.alipay.config.AlipayConfig;

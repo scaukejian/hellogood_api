@@ -14,7 +14,7 @@ import com.hellogood.mapper.TokenMapper;
 
 /**
  * Token操作@Service
- * @author fukangwen
+ * @author kejian
  *
  */
 @Service

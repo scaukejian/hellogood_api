@@ -5,7 +5,7 @@ import java.util.concurrent.Executors;
 
 /**
  * 消息通知线程池
- * Created by yanyuan on 15/9/30.
+ * Created by kejian on 2017/9/30.
  */
 public class NoticeExecutor {
 
