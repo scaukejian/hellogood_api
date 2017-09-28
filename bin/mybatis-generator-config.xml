@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>	
+<!DOCTYPE generatorConfiguration PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN" "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd" >
+<generatorConfiguration>
+	<classPathEntry location="D:\MyDrivers\mysql-connector-java-5.1.20.jar" />
+	<context id="prod">
+		<!-- RowBounds pagination -->
+		<plugin type="org.mybatis.generator.plugins.CaseInsensitiveLikePlugin"/>  
+        <plugin type="org.mybatis.generator.plugins.SerializablePlugin"/>  
+		<plugin type="org.mybatis.generator.plugins.RowBoundsPlugin" />
+		
+		<commentGenerator>
+			<property name="suppressDate" value="true" />
+			<property name="suppressAllComments" value="true" />
+		</commentGenerator>
+		<!-- <jdbcConnection driverClass="com.mysql.jdbc.Driver"
+			connectionURL="jdbc:mysql://202.101.167.122/caspian" userId="yjxt"	
+			password="yjxt123" /> -->
+			
+		<jdbcConnection driverClass="com.mysql.jdbc.Driver"
+			connectionURL="jdbc:mysql://localhost/caspian" userId="root"
+			password="123456" />
+			
+		<javaModelGenerator targetPackage="com.hellogood.caspian.ws.domain"
+			targetProject="caspian-ws" />
+		<sqlMapGenerator targetPackage="mapper" targetProject="caspian-ws/conf" />
+		<javaClientGenerator targetPackage="com.hellogood.caspian.ws.mapper"
+			targetProject="caspian-ws" type="XMLMAPPER" />
+		
+		<table tableName="-->" domainObjectName="OrgUserRecord" />			
+		<!-- 
+		<table tableName="welcomes" domainObjectName="Welcomes" />
+		<table tableName="org_group" domainObjectName="OrgGroup" />
+		<table tableName="message" domainObjectName="CaspianMessage" />
+		<table tableName="org_info_edit" domainObjectName="OrgInfoEdit" />
+		<table tableName="org_group_user" domainObjectName="OrgGroupUser" />
+		<table tableName="org_account" domainObjectName="OrgAccount" />
+		<table tableName="group_user" domainObjectName="GroupUser" />
+		<table tableName="account_user_in_report" domainObjectName="AccountUserinReport" />
+		<table tableName="pub_message_report" domainObjectName="PubMessageReport" />
+		<table tableName="user_visit_report" domainObjectName="UserVisitReport" />
+		<table tableName="mobile_using_report" domainObjectName="MobileUsingReport" />
+		<table tableName="gray_words" domainObjectName="GrayWords" />
+		<table tableName="org_account_login_report" domainObjectName="OrgAccountLoginReport" />
+		<table tableName="user_location_report" domainObjectName="UserLocationReport" />
+		<table tableName="user" domainObjectName="User" />
+		<table tableName="message" domainObjectName="CaspianMessage" />
+		<table tableName="org_info" domainObjectName="OrgInfo" /> 
+		<table tableName="org_user_delta_report" domainObjectName="OrgUserDeltaReport" />
+		<table tableName="message_serial" domainObjectName="CaspianMessageSerial" />
+		<table tableName="user_device" domainObjectName="UserDevice" />
+		<table tableName="apk_version" domainObjectName="ApkVersion" /> 
+		<table tableName="user_login_count_report" domainObjectName="UserLoginReport" />
+		-->
+
+	</context>
+</generatorConfiguration>

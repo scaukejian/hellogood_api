@@ -1,0 +1,134 @@
+﻿body{
+	
+	width:100%;
+	overflow:hidden;
+	background-color:#ededed;	
+}
+html { -webkit-text-size-adjust: none; }
+
+
+.hide{ display:none;}
+
+input{margin:0;padding:0;}
+
+.page{
+	width:100%;
+	height:100%;
+	position:absolute;
+	
+	text-align:center;
+}
+
+.page .wrap{
+	height:100%;
+}
+
+
+.page-1-1{ background-image:url(../images/img_1bg.jpg);background-size:auto 100%;overflow:hidden;background-repeat:no-repeat;}
+.page-2-1{ background-image:url(../images/img_2bg.jpg);background-size:auto 100%;overflow:hidden;background-repeat:no-repeat;}
+.page-3-1{ background-image:url(../images/img_3bg.jpg);background-size:auto 100%;overflow:hidden;background-repeat:no-repeat;}
+.page-4-1{ background-image:url(../images/img_4bg.jpg);background-size:auto 100%;overflow:hidden;background-repeat:no-repeat;}
+
+.page-current{
+	z-index:1;
+}
+
+.page-1-1 .img_1 {
+	height:auto;width:75%;
+	margin:auto;
+	margin-top:7%;
+	margin-bottom:10%;
+}
+
+.page-1-1 .img_2 .ip_box{margin-bottom:2%;}
+.page-1-1 .img_2 .ip_box .baliu{background-image:url(../images/img_186.png);width:26%;float:left;background-repeat:no-repeat;}
+.page-1-1 .img_2 .ip_box .yzmhq{background-image:url(../images/yzmbg.png);width:26%;float:left;font-size:10px;background-repeat:no-repeat;text-align:center;}
+
+
+.page-1-1 .zcbtn{margin:auto;width:82%;border:#767575 1px solid;border-radius:5px;background-color:transparent;color:#a9a9a9;margin-top:8%;}
+.page-1-1 .text_1{width:78%;margin:auto;margin-top:2%;}
+.page-1-1 .text_1 img{width:100%;}
+
+.page-1-1 .img_3 {
+	height:auto;width:25px;
+	position:absolute;
+	left:50%;
+	margin-left:-12px;
+	top:93%;
+}
+
+
+
+.page-2-1 .img_1{
+	width:80%;height:auto;
+	position:absolute;
+	top:10%;
+	left:10%;
+}
+
+.page-2-1 .img_2{
+	width:88%;
+	/*padding-top:3%;*/
+	position:absolute;
+	bottom:10%;
+	left:6%;
+	
+}
+
+.page-2-1 .img_6 {
+	height:auto;width:25px;
+	position:absolute;
+	left:50%;
+	top:92%;
+	margin-left:-12px;
+}
+
+
+
+
+
+
+
+.page-3-1 .img_1{
+	width:80%;height:auto;
+	position:absolute;
+	top:10%;
+	left:10%;
+}
+
+.page-3-1 .img_6 {
+	height:auto;width:25px;
+	position:absolute;
+	left:50%;
+	top:92%;
+	margin-left:-12px;
+}
+
+
+
+
+
+
+
+
+.page-4-1 .img_1{
+	width:80%;height:auto;
+	position:absolute;
+	top:10%;
+	left:10%;
+	z-index:10;
+	}
+
+.page-4-1 .img_2{
+	width:80%;height:auto;
+	position:absolute;
+	bottom:12%;
+	left:10%;
+	}
+	
+.page-4-1 .img_3{
+	width:76%;height:auto;
+	position:absolute;
+	bottom:6%;
+	left:12%;
+	}
