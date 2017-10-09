@@ -53,8 +53,6 @@ public class UserVO {
 
     private Date createTime;
 
-    private Date updateTime;
-
     private Integer validStatus;
 
     private Integer page;
@@ -98,6 +96,18 @@ public class UserVO {
     private Integer headPhotoId;
 
     private String token;
+
+    private Integer userId; //跟id一样
+
+    private Date updateTime;
+
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
+    }
 
     public String getToken() {
         return token;

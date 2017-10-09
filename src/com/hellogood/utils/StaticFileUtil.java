@@ -4,7 +4,7 @@ import java.util.ResourceBundle;
 
 /**
  * 静态文件工具类
- * @author fzh
+ * @author kejian
  *
  */
 public class StaticFileUtil {

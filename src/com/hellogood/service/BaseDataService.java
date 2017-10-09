@@ -29,7 +29,7 @@ import com.google.gson.reflect.TypeToken;
 
 /**
  * 基础数据Service
- * @author fzh
+ * @author kejian
  *
  */
 @Service

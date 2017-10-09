@@ -33,13 +33,7 @@ public class LoginController extends BaseController{
 	@Autowired
 	private SmsCodeService smsCodeService;
     @Autowired
-    private LoginRecordsService LoginRecordsService;
-    @Autowired
     private TokenService tokenService;
-    @Autowired
-    private UserPhotoService userPhotoService;
-    @Autowired
-    private BaseDataService baseDataService;
     @Autowired
     private ThirdPartyLoginService thirdPartyLoginService;
    
@@ -62,7 +56,7 @@ public class LoginController extends BaseController{
     		throw new BusinessException("用户授权参数错误！");
 		
 		ThirdPartyLogin thirdPartyLogin = thirdPartyLoginService.isExist(register.getOpenId());
-		if(thirdPartyLogin == null){
+		if(thirdPartyLogin == null){//未绑定该第三方账号
 			map.put("loginStatus", 0);
 			map.put("openid", register.getOpenId());
 			map.put("type", register.getType());
@@ -154,28 +148,7 @@ public class LoginController extends BaseController{
 		logger.info(result.toString());
 		return result;
 	}
-	
-	/**
-	 * 根据来源生成token
-	 * @param 
-	 * @throws JSONException
-	 * @throws IOException 
-	 */
-	@ResponseBody
-	@RequestMapping(value = "/createToken.do")
-	public Map<String, Object> createToken(@RequestParam("source") String source) throws JSONException, IOException{
-		Map<String, Object> map = new HashMap<String, Object>();
-		if(source != null && Code.ADMIN_SOURCE.equals(source)){
-			map.put("token", tokenService.insertOrUpdateBySource(source));
-			map.put(STATUS, STATUS_SUCCESS);
-		}else{
-			map.put(STATUS, STATUS_ERROR);
-			map.put(MESSAGE, "来源有错误");
-		}
-		
-		return map;
-	}
-	
+
 	/**
 	 * 用户登录
 	 * @param loginVO
@@ -217,16 +190,6 @@ public class LoginController extends BaseController{
 		}
         
 		User user = userService.getUser(loginInfo.getUserId());
-		//判断ios是否需要更新到最新版
-		logger.info("记录登录信息:" + loginVO.toString());
-		List<BaseData> baseList = baseDataService.getData(Code.DATA_TYPE_IOS_FORCE_UPDATE_VERSION);
-		if(baseList != null && !baseList.isEmpty()){
-			if("IOS".equals(loginVO.getClientType()) && (loginVO.getApkVersion() == null || baseList.get(0).getCode().compareTo(loginVO.getApkVersion()) > 0)){
-				map.put(STATUS, STATUS_FAILED);
-				map.put(MESSAGE, "必须更新到最新的版本才可以使用");
-				return map;
-			}
-		}
 		//更新登录时间并记录登录信息
 		String token = loginService.updateLoginAndRecord(loginInfo, loginVO);
 		

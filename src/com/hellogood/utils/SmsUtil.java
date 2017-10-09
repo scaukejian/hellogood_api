@@ -17,7 +17,7 @@ import org.springframework.web.context.ContextLoader;
 
 /**
  * 发短信工具类
- * @author fzh
+ * @author kejian
  *
  */
 public class SmsUtil {

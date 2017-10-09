@@ -198,10 +198,8 @@ public class LoginService {
     public boolean isExist(String phone) {
         LoginExample example = new LoginExample();
         example.createCriteria().andPhoneEqualTo(phone);
-        List<Login> list = loginMapper.selectByExample(example);
-        if (list != null && list.size() > 0) {
-            return true;
-        }
+        List<Login> loginList = loginMapper.selectByExample(example);
+        if (!loginList.isEmpty()) return true;
         return false;
     }
 
