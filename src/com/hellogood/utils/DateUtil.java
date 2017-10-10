@@ -156,12 +156,6 @@ public class DateUtil {
 						map.put(field.getName(), temp.getTime());
 						continue;
 					}
-					//字段值phone隐藏处理
-		            if("phone".equals(field.getName()) || "lastName".equals(field.getName())){
-		            	map.put(field.getName(), "");
-		                continue;
-		            }
-		            
 					map.put(field.getName(), field.get(o));
 				}
 				resultList.add(map);
