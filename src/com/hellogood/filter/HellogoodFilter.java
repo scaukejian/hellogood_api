@@ -49,7 +49,8 @@ public class HellogoodFilter implements Filter {
                 || requestURI.contains("/baseData")
                 || requestURI.contains("/area")
                 || requestURI.contains("/register.do")
-                || requestURI.contains("/mina/isExist")) {
+                || requestURI.contains("/mina/isExist")
+                || requestURI.contains("/note")) {
             if (tokenStr != null) {
                 Token token = tokenService.getToken(tokenStr);
                 if (token != null) {

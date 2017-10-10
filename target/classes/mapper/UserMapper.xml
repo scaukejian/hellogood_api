@@ -124,7 +124,7 @@
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="com.hellogood.domain.User" >
+  <insert id="insert" parameterType="com.hellogood.domain.User" useGeneratedKeys="true" keyProperty="id" >
     insert into api_user (id, user_code, user_name, 
       sex, age, height, weight, 
       phone, weixin_name, degree, 
