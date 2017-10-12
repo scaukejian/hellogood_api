@@ -236,8 +236,7 @@ public class RSAUtil {
 
     public static void main(String[] args) throws Exception {
         // TODO Auto-generated method stub
-        /**
-         *
+/*
 
          HashMap<String, Object> map = RSAUtil.getKeys();
          //生成公钥和私钥
@@ -270,7 +269,7 @@ public class RSAUtil {
         System.out.println("公钥指数: " +  publicKey.getPublicExponent().toString(16));
         System.out.println("私钥指数: " + privateKey.getPrivateExponent().toString(16));
         System.out.println("模: " + privateKey.getModulus().toString(16));
-         */
+*/
 
         String password = "13610206374";
         String passwordMi = testEncrypt(password);
