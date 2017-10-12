@@ -113,12 +113,7 @@ public class DateUtil {
 	            	resultMap.put(field.getName(), temp.getTime());
 	                continue;
 	            }
-	            //字段值phone隐藏处理
-	            if("phone".equals(field.getName()) || "lastName".equals(field.getName())){
-	            	resultMap.put(field.getName(), "");
-	                continue;
-	            }
-	            
+
 	            resultMap.put(field.getName(), field.get(o));
 			}
 		} catch (Exception e) {

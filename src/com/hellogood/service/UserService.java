@@ -88,8 +88,6 @@ public class UserService {
         tokenService.checkUserToken(userVO.getToken(), userVO.getId());
         if (userVO.getId() == null)
             throw new BusinessException("用户id不能为空");
-        if (!RegexUtils.isUsername(userVO.getUserCode()))
-            throw new BusinessException(RegexUtils.USERNAME_MSG);
         if (StringUtils.isBlank(userVO.getUserName()))
             throw new BusinessException("姓名不能为空");
         if (userVO.getUserName().length() > 32)
@@ -229,8 +227,6 @@ public class UserService {
         Map<String, Object> userDetail = new HashMap<String, Object>();
         User user = this.getUser(userId);
         user.setAge(DateUtil.getAge(user.getBirthday()));
-        if (!StringUtils.isEmpty(user.getCharacteristicSignature()))
-            user.setCharacteristicSignature(new String(org.apache.commons.codec.binary.Base64.decodeBase64(user.getCharacteristicSignature())));
         //去掉头像，使用形象照
         UserVO userVO = new UserVO();
         userVO.domain2Vo(user);

@@ -64,27 +64,4 @@ public class BaseDataController extends BaseController{
 		map.put(STATUS, STATUS_SUCCESS);
 		return map;
 	}
-	
-	/**
-	 * 获取红包提现的数据，手续费率，提现微信号
-	 * @return
-	 */
-	@ResponseBody
-	@RequestMapping("/getRedPacketConfig.do")
-	public Map<String, Object> getRedPacketConfig(){
-		Map<String, Object> map = new HashMap<String, Object>();
-		List<BaseData> weixinList = baseDataService.getData(Code.DATA_TYPE_WITHDRAW_NAME);
-		if(weixinList == null || weixinList.isEmpty())
-			throw new BusinessException("获取基础数据错误");
-		map.put("weixinName", weixinList.get(0).getName());
-		
-		List<BaseData> costList = baseDataService.getData(Code.DATA_TYPE_WITHDRAW_COST);
-		if(costList == null || costList.isEmpty())
-			throw new BusinessException("获取基础数据错误");
-		map.put("withdrawCost", costList.get(0).getName());
-		
-		map.put(STATUS, STATUS_SUCCESS);
-		return map;
-	}
-	
 }

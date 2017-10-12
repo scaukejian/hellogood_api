@@ -84,7 +84,7 @@ public class LoginController extends BaseController{
 		map.put("userId", user.getId());
 		map.put("loginStatus", 1);
 		//用户前缀
-		map.put("imUserName", user.getUserCode());
+		map.put("userCode", user.getUserCode());
 		map.put("token", token);
 		return map;
 	}
@@ -143,7 +143,7 @@ public class LoginController extends BaseController{
 		result.put(STATUS, STATUS_SUCCESS);
 		result.put("userId", user.getId());
 		//用户前缀
-		result.put("imUserName", user.getUserCode());
+		result.put("userCode", user.getUserCode());
 		result.put("token", tokenService.insertOrUpdate(user.getId(), TokenConstants.TOKEN_INVALID_INSERT_NEW));
 		logger.info(result.toString());
 		return result;
@@ -202,7 +202,7 @@ public class LoginController extends BaseController{
 		
 		map.put("userId", user.getId());
 		//用户前缀
-		map.put("imUserName", user.getUserCode());
+		map.put("userCode", user.getUserCode());
 		map.put("token", token);
 		map.put(STATUS, STATUS_SUCCESS);
 		return map;

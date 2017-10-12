@@ -45,11 +45,9 @@ public class SmsController extends BaseController{
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/code.do")
-	public Map<String, Object> getRegisterCode(@RequestParam("mobile") String mobile, @RequestParam("type") String type){
+	public Map<String, Object> getRegisterCode(@RequestParam("mobile") String mobile){
 		Map<String, Object> result = new HashMap<String, Object>();
-		if(!CODE_TYPE_REGISTER.equals(type))
-			throw new BusinessException("暂时不支持找回密码");
-		
+
 		Login login = loginService.getLoginByPhone(mobile);
 		
 		if(login != null){

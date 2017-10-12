@@ -168,9 +168,11 @@ public class NoteService {
      */
     @Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
     public PageInfo pageQuery(NoteVO queryVo) {
+        if((queryVo.getUserId() == null || queryVo.getUserId() == 0) && StringUtils.isBlank(queryVo.getPhoneUniqueCode()))
+            throw new BusinessException("请登录后再查询");
         NoteExample example = new NoteExample();
         NoteExample.Criteria criteria = example.createCriteria();
-        if(StringUtils.isNotBlank(queryVo.getUserCode()) || StringUtils.isNotBlank(queryVo.getPhone()))
+        if(queryVo.getUserId() != null && queryVo.getUserId() != 0)
             criteria.andUserIdIn(getUserIds(queryVo));
         if (StringUtils.isNotBlank(queryVo.getPhoneUniqueCode()))
             criteria.andPhoneUniqueCodeLike(MessageFormat.format("%{0}%", queryVo.getPhoneUniqueCode()));
@@ -218,10 +220,7 @@ public class NoteService {
     public List<Integer> getUserIds(NoteVO queryVo) {
         UserExample example = new UserExample();
         UserExample.Criteria criteria = example.createCriteria();
-        if (StringUtils.isNotBlank(queryVo.getUserCode()))
-            criteria.andUserCodeLike(MessageFormat.format("%{0}%", queryVo.getUserCode()));
-        if (StringUtils.isNotBlank(queryVo.getPhone()))
-            criteria.andPhoneLike(MessageFormat.format("%{0}%", queryVo.getPhone()));
+        criteria.andIdEqualTo(queryVo.getUserId());
         List<User> userList = userMapper.selectByExample(example);
         List<Integer> userIdList = new ArrayList<>();
         if (!userList.isEmpty()) userIdList = userList.stream().map(user -> user.getId()).collect(Collectors.toList());

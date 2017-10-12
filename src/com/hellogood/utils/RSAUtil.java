@@ -272,7 +272,7 @@ public class RSAUtil {
         System.out.println("模: " + privateKey.getModulus().toString(16));
          */
 
-        String password = "123456";
+        String password = "13610206374";
         String passwordMi = testEncrypt(password);
         testDecrypt(passwordMi);
     }
