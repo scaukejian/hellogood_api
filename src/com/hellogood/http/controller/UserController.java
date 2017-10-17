@@ -41,7 +41,7 @@ public class UserController extends BaseController{
 	@RequestMapping(value = "/getMyInfoById/{userId}.do")
 	@ResponseBody
 	public Map<String, Object> getMyInfoById(@PathVariable Integer userId, HttpServletRequest request) {
-		
+		logger.info("UserController userId:"+userId);
 		Map<String, Object> map = new HashMap<String, Object>();
 		User user = userService.getUser(userId);
 		

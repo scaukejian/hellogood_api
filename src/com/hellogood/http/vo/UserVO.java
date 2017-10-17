@@ -470,4 +470,54 @@ public class UserVO {
             throw new BusinessException("获取用户信息失败");
         }
     }
+
+    @Override
+    public String toString() {
+        return "UserVO{" +
+                "id=" + id +
+                ", userCode='" + userCode + '\'' +
+                ", userName='" + userName + '\'' +
+                ", sex='" + sex + '\'' +
+                ", age=" + age +
+                ", height=" + height +
+                ", weight=" + weight +
+                ", phone='" + phone + '\'' +
+                ", weixinName='" + weixinName + '\'' +
+                ", degree='" + degree + '\'' +
+                ", birthday=" + birthday +
+                ", constellation='" + constellation + '\'' +
+                ", maritalStatus='" + maritalStatus + '\'' +
+                ", nativePlace='" + nativePlace + '\'' +
+                ", liveProvince='" + liveProvince + '\'' +
+                ", liveCity='" + liveCity + '\'' +
+                ", nationality='" + nationality + '\'' +
+                ", school='" + school + '\'' +
+                ", company='" + company + '\'' +
+                ", job='" + job + '\'' +
+                ", characteristicSignature='" + characteristicSignature + '\'' +
+                ", createTime=" + createTime +
+                ", validStatus=" + validStatus +
+                ", page=" + page +
+                ", pageSize=" + pageSize +
+                ", minAge=" + minAge +
+                ", maxAge=" + maxAge +
+                ", birthDayBeginTime=" + birthDayBeginTime +
+                ", birthDayEndTime=" + birthDayEndTime +
+                ", minHeight=" + minHeight +
+                ", maxHeight=" + maxHeight +
+                ", startDate=" + startDate +
+                ", deadline=" + deadline +
+                ", cityList=" + cityList +
+                ", remark='" + remark + '\'' +
+                ", qq='" + qq + '\'' +
+                ", email='" + email + '\'' +
+                ", headPhoto=" + headPhoto +
+                ", headPhotoName='" + headPhotoName + '\'' +
+                ", headPicPath='" + headPicPath + '\'' +
+                ", headPhotoId=" + headPhotoId +
+                ", token='" + token + '\'' +
+                ", userId=" + userId +
+                ", updateTime=" + updateTime +
+                '}';
+    }
 }

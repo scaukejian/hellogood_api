@@ -30,6 +30,7 @@ public class NoteController extends BaseController {
 	@ResponseBody
 	@RequestMapping("/getNoteList.do")
 	public Map<String, Object> getNoteList(@RequestBody NoteVO noteVO) {
+		logger.info(noteVO.toString());
 		Map<String, Object> map = new HashMap<>();
 		PageInfo pageInfo = noteService.pageQuery(noteVO);
 		map.put(DATA_LIST, DateUtil.list2MapDateFormat(pageInfo.getList()));
@@ -45,6 +46,7 @@ public class NoteController extends BaseController {
 	@ResponseBody
 	@RequestMapping(value = "/add.do")
 	public Map<String, Object> add(@RequestBody NoteVO noteVO) {
+		logger.info(noteVO.toString());
 		Map<String, Object> map = new HashMap<String, Object>();
 		noteService.add(noteVO);
 		map.put(STATUS, STATUS_SUCCESS);
@@ -59,6 +61,7 @@ public class NoteController extends BaseController {
 	@ResponseBody
 	@RequestMapping("/setStatusById/{id}-{status}.do")
 	public Map<String, Object> setStatusById(@PathVariable Integer id, @PathVariable Integer status) {
+		logger.info("setStatusById=======id:"+id+"======status:"+status);
 		Map<String, Object> map = new HashMap<String, Object>();
 		noteService.setStatusById(id, status);
 		map.put(STATUS, STATUS_SUCCESS);
@@ -73,6 +76,7 @@ public class NoteController extends BaseController {
 	@ResponseBody
 	@RequestMapping("/deleteById/{id}.do")
 	public Map<String, Object> deleteById(@PathVariable Integer id) {
+		logger.info("deleteById=======id:"+id);
 		Map<String, Object> map = new HashMap<String, Object>();
 		noteService.deleteById(id);
 		map.put(STATUS, STATUS_SUCCESS);
@@ -115,6 +119,7 @@ public class NoteController extends BaseController {
 	@ResponseBody
 	@RequestMapping("/update.do")
 	public Map<String, Object> update(@RequestBody NoteVO noteVO) {
+		logger.info(noteVO.toString());
 		Map<String, Object> map = new HashMap<>();
 		noteService.update(noteVO);
 		map.put(STATUS, STATUS_SUCCESS);
@@ -129,6 +134,7 @@ public class NoteController extends BaseController {
 	@ResponseBody
 	@RequestMapping("/get/{id}.do")
 	public Map<String, Object> get(@PathVariable Integer id) {
+		logger.info("note---get---id:"+id);
 		Map<String, Object> map = new HashMap<String, Object>();
 		NoteVO vo = noteService.get(id);
 		map.put(DATA, vo);

@@ -210,4 +210,28 @@ public class NoteVO {
             throw new BusinessException("获取便签信息失败");
         }
     }
+
+    @Override
+    public String toString() {
+        return "NoteVO{" +
+                "id=" + id +
+                ", userId=" + userId +
+                ", phoneUniqueCode='" + phoneUniqueCode + '\'' +
+                ", content='" + content + '\'' +
+                ", createTime=" + createTime +
+                ", updateTime=" + updateTime +
+                ", validStatus=" + validStatus +
+                ", display=" + display +
+                ", top=" + top +
+                ", type='" + type + '\'' +
+                ", color='" + color + '\'' +
+                ", userCode='" + userCode + '\'' +
+                ", userName='" + userName + '\'' +
+                ", phone='" + phone + '\'' +
+                ", startDate=" + startDate +
+                ", deadline=" + deadline +
+                ", page=" + page +
+                ", pageSize=" + pageSize +
+                '}';
+    }
 }

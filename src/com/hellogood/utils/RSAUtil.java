@@ -1,7 +1,5 @@
 package com.hellogood.utils;
 
-import org.apache.commons.codec.binary.Base64;
-
 import javax.crypto.Cipher;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -105,7 +103,7 @@ public class RSAUtil {
      */
     public static String encryptByPublicKey(String data, RSAPublicKey publicKey)
             throws Exception {
-        Cipher cipher = Cipher.getInstance("RSA");
+        Cipher cipher = Cipher.getInstance("RSA"); //android要用 "RSA/None/PKCS1Padding"
         cipher.init(Cipher.ENCRYPT_MODE, publicKey);
         // 模长
         int key_len = publicKey.getModulus().bitLength() / 8;
@@ -269,7 +267,7 @@ public class RSAUtil {
 */
 
         String password = "123456";
-        String passwordMi = testEncrypt(password);
+        String passwordMi = "3D3973641EDFDB2DB5C53ED340468004C2C9AB38A61260C81DF03131140B02C43261323C25D4F510A63C56CC0465C0FF662652FA8AEC6568694B71FF00432B39379BF857DF38F50F42E3926A2A897250C21CB8634C53ED37D63BBDB1BA4EC021FC84DAD5573EFDFD5BBFF8ED08EF52804D3ED5A462E4C0BE757AFDF7BB93525D";
         testDecrypt(passwordMi);
     }
 

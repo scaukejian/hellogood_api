@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,24 +46,34 @@ public class SmsController extends BaseController{
 	 */
 	@ResponseBody
 	@RequestMapping(value = "/code.do")
-	public Map<String, Object> getRegisterCode(@RequestParam("mobile") String mobile){
+	public Map<String, Object> getRegisterCode(@RequestParam("mobile") String mobile, @RequestParam("type") String type){
 		Map<String, Object> result = new HashMap<String, Object>();
-
-		Login login = loginService.getLoginByPhone(mobile);
-		
-		if(login != null){
-			result.put(STATUS, STATUS_FAILED);
-			result.put(MESSAGE, "此号码已经注册！");
-			return result;
-		}
-		
+		Login login = null;
+		String content = null;
+		int status = 0;
+		int code = (int) ((Math.random()*9+1)*100000);
 		//验证是否发送过于频繁
 		smsCodeService.validOneMinuteLimit(mobile);
-		
-		int code = (int) ((Math.random()*9+1)*100000);
-		String content = "您的验证码是：" + code + "。请不要把验证码泄露给其他人。";
-		int status = 0;
-		
+		switch(type){
+			case CODE_TYPE_REGISTER :
+				login = loginService.getLoginByPhone(mobile);
+
+				if(login != null){
+					result.put(STATUS, STATUS_FAILED);
+					result.put(MESSAGE, "此号码已经注册！");
+					return result;
+				}
+				break;
+			case CODE_TYPE_FORGET :
+				login = loginService.getLoginByPhone(mobile);
+				if(login == null){
+					result.put(STATUS, STATUS_FAILED);
+					result.put(MESSAGE, "此号码尚未注册！");
+					return result;
+				}
+				break;
+		}
+		content = "您的验证码是：" + code + "。请不要把验证码泄露给其他人。";
 		try {
 			//发送短信
 			status = SmsUtil.sendSMS(mobile, content, "");

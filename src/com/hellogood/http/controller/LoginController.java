@@ -46,6 +46,7 @@ public class LoginController extends BaseController{
 	@ResponseBody
 	@RequestMapping(value = "/validateThirdParty.do", method = RequestMethod.POST)
 	public Map<String, Object> validateThirdParty(@RequestBody RegisterVO register){
+		logger.info(register.toString());
 		Map<String, Object> map = new HashMap<String, Object>();
 		//网页第三方授权
 		if(register.getCode() != null){
@@ -158,6 +159,7 @@ public class LoginController extends BaseController{
 	@ResponseBody
 	@RequestMapping(value = "/login.do", method = RequestMethod.POST)
 	public Map<String, Object> login(@RequestBody LoginVO loginVO) throws JSONException, IOException {
+		logger.info(loginVO.toString());
 		Map<String, Object> map = new HashMap<String, Object>();
 		String mobile = loginVO.getMobile();
 		String password = loginVO.getPassword();
@@ -217,6 +219,7 @@ public class LoginController extends BaseController{
 	@ResponseBody
 	@RequestMapping(value = "/changePassword.do", method = RequestMethod.POST)
 	public Map<String, Object> setNewPassword(@RequestBody LoginVO loginVO) throws JSONException, IOException{
+		logger.info(loginVO.toString());
 		Map<String, Object> map = new HashMap<String, Object>();
         //RSA解密（ios暂时传过来的是md5加密密文）
 		if("Android".equals(loginVO.getClientType())){
@@ -256,6 +259,7 @@ public class LoginController extends BaseController{
 	@ResponseBody
 	@RequestMapping(value = "/resetPassword.do", method = RequestMethod.POST)
 	public Map<String, Object> resetPassword(@RequestBody LoginVO loginVO) throws JSONException, IOException{
+		logger.info(loginVO.toString());
 		Map<String, Object> map = new HashMap<String, Object>();
 		if(loginVO.getPassword() == null)
 			throw new BusinessException("参数有误");
@@ -281,6 +285,7 @@ public class LoginController extends BaseController{
 	 * @return
 	 */
 	private Login resetValidate(LoginVO loginVO){
+		logger.info(loginVO.toString());
 		if(loginVO.getMobile() == null || loginVO.getCode() == null)
 	        throw new BusinessException("参数有误");
 		Login loginInfo = loginService.getLoginByPhone(loginVO.getMobile());
@@ -310,6 +315,7 @@ public class LoginController extends BaseController{
 	@ResponseBody
 	@RequestMapping(value = "/validateCode.do", method = RequestMethod.POST)
 	public Map<String, Object> validateCode(@RequestBody LoginVO loginVO){
+		logger.info(loginVO.toString());
 		Map<String, Object> result = new HashMap<String, Object>();
 		resetValidate(loginVO);
 		result.put(STATUS, STATUS_SUCCESS);
