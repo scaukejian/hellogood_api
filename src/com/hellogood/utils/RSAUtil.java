@@ -105,8 +105,6 @@ public class RSAUtil {
      */
     public static String encryptByPublicKey(String data, RSAPublicKey publicKey)
             throws Exception {
-        //base64加密
-        data = new String(Base64.encodeBase64(data.getBytes()));
         Cipher cipher = Cipher.getInstance("RSA");
         cipher.init(Cipher.ENCRYPT_MODE, publicKey);
         // 模长
@@ -144,8 +142,7 @@ public class RSAUtil {
         for(byte[] arr : arrays){
             ming += new String(cipher.doFinal(arr));
         }
-        //base64解密
-        return new String(Base64.decodeBase64(ming));
+        return ming;
     }
     /**
      * ASCII码转BCD码
@@ -271,7 +268,7 @@ public class RSAUtil {
         System.out.println("模: " + privateKey.getModulus().toString(16));
 */
 
-        String password = "13610206374";
+        String password = "123456";
         String passwordMi = testEncrypt(password);
         testDecrypt(passwordMi);
     }
@@ -280,6 +277,7 @@ public class RSAUtil {
         String privateExponent = StaticFileUtil.getProperty("RSAKey", "publicExponent");
         String modulus = StaticFileUtil.getProperty("RSAKey", "modulus");
         RSAPublicKey publicKey = RSAUtil.getPublicKey(modulus, privateExponent);
+        password = Base64Util.encode(password);//base64加密
         System.out.println(RSAUtil.encryptByPublicKey(password, publicKey));
         return RSAUtil.encryptByPublicKey(password, publicKey);
     }
@@ -288,6 +286,7 @@ public class RSAUtil {
         String privateExponent = StaticFileUtil.getProperty("RSAKey", "privateExponent");
         String modulus = StaticFileUtil.getProperty("RSAKey", "modulus");
         RSAPrivateKey priKey = RSAUtil.getPrivateKey(modulus, privateExponent);
-        System.out.println(RSAUtil.decryptByPrivateKey(password, priKey));
+        String mima = RSAUtil.decryptByPrivateKey(password, priKey);
+        System.out.println(Base64Util.decode(mima));//base64解密
     }
 }

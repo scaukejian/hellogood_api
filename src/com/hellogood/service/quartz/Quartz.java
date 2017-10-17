@@ -16,7 +16,6 @@ public class Quartz {
 	 */    
 	@Scheduled(cron="0 0 3 * * ?")
 	public void checkInvalidRedPacketOrder(){  
-		logger.info("凌晨三点执行一次" + new Date());
 		//redPacketOrderService.checkInvalidOrder();
 	}  
     
@@ -29,7 +28,6 @@ public class Quartz {
      */
     @Scheduled(cron = "0 0 11 ? * SUN")
     public void weeklyTimerPush(){
-    	logger.info("开始执行定时周报推送 ---------> ");
 		//momentSayGoodService.weeklyTimerPush(DateUtil.getOneWeekEarlyTime());
 	}
     
@@ -38,7 +36,6 @@ public class Quartz {
 	 */    
 	@Scheduled(cron="0 5 0 * * ?")
 	public void updateBirthdayUserList(){  
-		logger.info("凌晨12点05分执行一次" + new Date());
 		//userInfoService.getBirthdayUserIdListCache(true);
 	}  
 	
@@ -47,8 +44,6 @@ public class Quartz {
 	 */    
 	@Scheduled(cron="0 0 10 * * ?")
 	public void birthdayGiftService(){  
-		logger.info("开始执行定时发送生日礼包 ---------> ");
 		//birthdayGiftService.generateBirthdayGift(DateUtil.DateToStringYMD(new Date())); //后面加入日期
-		logger.info("执行定时发送生日礼包结束---------> ");
-	}  
+	}
 }

@@ -8,6 +8,7 @@ import java.util.Map;
 import com.hellogood.exception.CheckingException;
 import com.hellogood.exception.RequestParamException;
 import com.hellogood.exception.UserOperateException;
+import com.hellogood.utils.Base64Util;
 import com.hellogood.utils.RSAUtil;
 import com.hellogood.utils.StaticFileUtil;
 
@@ -174,7 +175,8 @@ public class BaseController {
         String modulus = StaticFileUtil.getProperty("RSAKey", "modulus");
         RSAPrivateKey priKey = RSAUtil.getPrivateKey(modulus, privateExponent);
         try{
-            reuslt = RSAUtil.decryptByPrivateKey(password, priKey);
+            reuslt = RSAUtil.decryptByPrivateKey(password, priKey); //RSA解密
+            reuslt = Base64Util.decode(reuslt); //base64解密
         }catch (Exception e){
             logger.info("解密失败");
             throw new RuntimeException(e);
