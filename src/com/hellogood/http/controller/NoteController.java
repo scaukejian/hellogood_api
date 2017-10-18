@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 便签Controller
+ * 计划Controller
  * Created by kejian
  */
 @RequestMapping("note")
@@ -23,7 +23,7 @@ public class NoteController extends BaseController {
 	private NoteService noteService;
 
 	/**
-	 * 查找便签列表
+	 * 查找计划列表
 	 * @param noteVO
 	 * @return
 	 */
@@ -39,7 +39,7 @@ public class NoteController extends BaseController {
 	}
 
 	/**
-	 * 新增便签
+	 * 新增计划
 	 * @param noteVO
 	 * @return
 	 */
@@ -54,7 +54,7 @@ public class NoteController extends BaseController {
 	}
 
 	/**
-	 * 设置便签状态
+	 * 设置计划状态
 	 * @param id
 	 * @return
 	 */
@@ -69,7 +69,7 @@ public class NoteController extends BaseController {
 	}
 
 	/**
-	 * 删除便签
+	 * 删除计划
 	 * @param id
 	 * @return
 	 */
@@ -84,7 +84,7 @@ public class NoteController extends BaseController {
 	}
 
 	/**
-	 * 批量设置便签状态
+	 * 批量设置计划状态
 	 * @param ids
 	 * @return
 	 */
@@ -98,7 +98,7 @@ public class NoteController extends BaseController {
 	}
 
 	/**
-	 * 批量删除便签
+	 * 批量删除计划
 	 * @param ids
 	 * @return
 	 */
@@ -112,7 +112,7 @@ public class NoteController extends BaseController {
 	}
 
 	/**
-	 * 修改便签信息
+	 * 修改计划信息
 	 * @param noteVO
 	 * @return
 	 */
@@ -127,7 +127,7 @@ public class NoteController extends BaseController {
 	}
 
 	/**
-	 * 获取便签详细信息
+	 * 获取计划详细信息
 	 * @param id
 	 * @return
 	 */

@@ -69,7 +69,6 @@ public class LoginService {
         loginVO.setClientType(register.getClientType());
         loginVO.setLoginIp(register.getLoginIp());
         loginVO.setLoginAddr(register.getLoginAddr());
-
         User user = this.createUser(loginVO);
 
         //注册时绑定第三方账号

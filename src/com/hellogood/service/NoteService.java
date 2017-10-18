@@ -19,10 +19,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -42,9 +39,14 @@ public class NoteService {
         if (StringUtils.isBlank(vo.getPhoneUniqueCode()))
             throw new BusinessException("请先授权APP获取系统权限");
         if (StringUtils.isBlank(vo.getType()))
-            throw new BusinessException("操作失败: 请选择便签类型");
+            throw new BusinessException("操作失败: 请选择计划类型");
+
+        List<String> typeList = Arrays.asList("日","周","月","季","年");
+        if (!typeList.contains(vo.getType()))
+            throw new BusinessException("操作失败: 计划类型只能为日、周、月、季、年");
+
         if (StringUtils.isBlank(vo.getContent()))
-            throw new BusinessException("操作失败: 便签内容不能为空");
+            throw new BusinessException("操作失败: 计划内容不能为空");
         if (vo.getContent().length() > 5000)
             throw new BusinessException("操作失败: 内容长度不能大于5000个字符");
     }
@@ -213,7 +215,7 @@ public class NoteService {
 
 
     /**
-     * 查找便签id集合
+     * 查找计划id集合
      * @param queryVo
      * @return
      */

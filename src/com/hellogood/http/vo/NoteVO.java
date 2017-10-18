@@ -198,7 +198,7 @@ public class NoteVO {
             BeaUtils.copyProperties(domain, this);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new BusinessException("获取便签信息失败");
+            throw new BusinessException("获取计划信息失败");
         }
     }
 
@@ -207,7 +207,7 @@ public class NoteVO {
             BeaUtils.copyProperties(this, domain);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new BusinessException("获取便签信息失败");
+            throw new BusinessException("获取计划信息失败");
         }
     }
 

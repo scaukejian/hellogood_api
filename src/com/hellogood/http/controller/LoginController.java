@@ -100,6 +100,14 @@ public class LoginController extends BaseController{
 	@RequestMapping(value = "/register.do", method = RequestMethod.POST)
 	public Map<String, Object> register(@RequestBody RegisterVO register){
 		logger.info(register.toString());
+		if (StringUtils.isBlank(register.getClientType()))
+			throw new BusinessException("客户端类型不能为空");
+		if (StringUtils.isBlank(register.getMobile()))
+			throw new BusinessException("手机号不能为空");
+		if (StringUtils.isBlank(register.getPassword()))
+			throw new BusinessException("密码不能为空");
+		if (StringUtils.isBlank(register.getSmsCode()))
+			throw new BusinessException("验证码不能为空");
 		String password = register.getPassword();
 		String mobile = register.getMobile();
         if(!"invite".equals(register.getClientType())){
@@ -160,6 +168,12 @@ public class LoginController extends BaseController{
 	@RequestMapping(value = "/login.do", method = RequestMethod.POST)
 	public Map<String, Object> login(@RequestBody LoginVO loginVO) throws JSONException, IOException {
 		logger.info(loginVO.toString());
+		if (StringUtils.isBlank(loginVO.getClientType()))
+			throw new BusinessException("客户端类型不能为空");
+		if (StringUtils.isBlank(loginVO.getMobile()))
+			throw new BusinessException("手机号不能为空");
+		if (StringUtils.isBlank(loginVO.getPassword()))
+			throw new BusinessException("密码不能为空");
 		Map<String, Object> map = new HashMap<String, Object>();
 		String mobile = loginVO.getMobile();
 		String password = loginVO.getPassword();
@@ -220,6 +234,14 @@ public class LoginController extends BaseController{
 	@RequestMapping(value = "/changePassword.do", method = RequestMethod.POST)
 	public Map<String, Object> setNewPassword(@RequestBody LoginVO loginVO) throws JSONException, IOException{
 		logger.info(loginVO.toString());
+		if (StringUtils.isBlank(loginVO.getOldPassword()))
+			throw new BusinessException("旧密码不能为空");
+		if (StringUtils.isBlank(loginVO.getNewPassword()))
+			throw new BusinessException("新密码不能为空");
+		if (StringUtils.isBlank(loginVO.getClientType()))
+			throw new BusinessException("客户端类型不能为空");
+		if (loginVO.getUserId() == null || loginVO.getUserId() == 0)
+			throw new BusinessException("用户id不能为空");
 		Map<String, Object> map = new HashMap<String, Object>();
         //RSA解密（ios暂时传过来的是md5加密密文）
 		if("Android".equals(loginVO.getClientType())){
@@ -227,12 +249,10 @@ public class LoginController extends BaseController{
      	  loginVO.setNewPassword(decrypt(loginVO.getNewPassword()));
 		}
         Login loginInfo = loginService.getLoginByUserId(loginVO.getUserId());
-        
         //IOS已经是md5加密的
         String oldPassword = loginVO.getOldPassword();
         if("Android".equals(loginVO.getClientType()))
         	oldPassword = md5Encrypt(loginVO.getOldPassword(), loginInfo.getPhone());
-		
         if(!StringUtils.equals(loginInfo.getPassword(), oldPassword)){
 			map.put(STATUS, STATUS_FAILED);
 			map.put(MESSAGE, "密码错误");
@@ -242,7 +262,6 @@ public class LoginController extends BaseController{
 		String newPassword = loginVO.getNewPassword();
 		if("Android".equals(loginVO.getClientType()))
 			newPassword = md5Encrypt(loginVO.getNewPassword(), loginInfo.getPhone());
-		
 		loginInfo.setPassword(newPassword);
 		loginService.updateLogin(loginInfo);
 		map.put(STATUS, STATUS_SUCCESS);
