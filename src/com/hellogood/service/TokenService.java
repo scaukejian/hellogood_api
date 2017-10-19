@@ -30,16 +30,6 @@ public class TokenService {
 	public String getToken(Integer userId){
 		return UUID.randomUUID()+"_"+userId +"_" + new Date().getTime();
 	}
-	
-	/**
-	 * 生成token
-	 * @param userId
-	 * @return
-	 */
-	public String getTokenBySource(String source){
-		return UUID.randomUUID()+"_"+source +"_" + new Date().getTime();
-	}
-	
 
 	/**
 	 * 获取token
@@ -111,7 +101,6 @@ public class TokenService {
 	
 	/**
 	 * 验证token是否可用
-	 * @param userId
 	 * @param tokenStr
 	 * @return
 	 */
@@ -122,23 +111,6 @@ public class TokenService {
 		if(tokenList == null || tokenList.size() < 1)
 			return null;
 		return tokenList.get(0);
-	}
-
-	public String insertOrUpdateBySource(String source) {
-		String tokenStr = getTokenBySource(source);
-		TokenExample example = new TokenExample();
-		example.createCriteria().andSourceEqualTo(source);
-		List<Token> tokenList = tokenMapper.selectByExample(example);
-		if(tokenList == null || tokenList.isEmpty()){
-			Token token = new Token();
-			token.setSource(source);
-			token.setTime(new Date());
-			token.setToken(tokenStr);
-			tokenMapper.insert(token);
-		}else{
-			tokenStr = tokenList.get(0).getToken();
-		}
-		return tokenStr;
 	}
 
 	public Token getPreToken(String tokenStr) {

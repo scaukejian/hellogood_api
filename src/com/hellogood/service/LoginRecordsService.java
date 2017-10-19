@@ -1,13 +1,11 @@
 package com.hellogood.service;
 
 import java.util.Date;
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.hellogood.domain.LoginRecords;
-import com.hellogood.domain.LoginRecordsExample;
 import com.hellogood.exception.BusinessException;
 import com.hellogood.http.vo.LoginVO;
 import com.hellogood.mapper.LoginRecordsMapper;
@@ -42,7 +40,7 @@ public class LoginRecordsService {
     /**
      * 新增登录记录
      * @param loginId
-     * @param clientType
+     * @param loginVO
      */
     public void add(Integer loginId, LoginVO loginVO){
         LoginRecords records = new LoginRecords();
@@ -55,17 +53,4 @@ public class LoginRecordsService {
         loginRecordsMapper.insert(records);
     }
     
-    /**
-     * 
-     * @param id
-     */
-	public LoginRecords getNewestRecord(Integer loginId) {
-		LoginRecordsExample example = new LoginRecordsExample();
-		example.createCriteria().andLoginIdEqualTo(loginId);
-		example.setOrderByClause("id desc");
-		List<LoginRecords> list = loginRecordsMapper.selectByExample(example);
-		if(list.isEmpty())
-			return null;
-		return list.get(0);
-	}
 }

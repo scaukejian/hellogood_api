@@ -20,14 +20,6 @@ public class UserPhotoService {
 	private UserPhotoMapper userPhotoMapper;
 
 	/**
-	 * 新增形象照
-	 * @param userPhoto
-	 */
-	public void insertAndUpdate(UserPhoto userPhoto){
-		userPhotoMapper.insert(userPhoto);
-	}
-	
-	/**
 	 * 获取别人的形象照,isThumbnail是否为缩略图 
 	 * @param userId
 	 * @param isThumbnail

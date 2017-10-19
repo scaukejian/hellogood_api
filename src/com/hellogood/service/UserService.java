@@ -4,7 +4,6 @@ import com.hellogood.domain.*;
 import com.hellogood.exception.BusinessException;
 import com.hellogood.exception.UserRegisterOperateException;
 import com.hellogood.http.vo.UserVO;
-import com.hellogood.service.redis.RedisCacheManger;
 import com.hellogood.utils.DateUtil;
 import com.hellogood.utils.RegexUtils;
 import com.hellogood.utils.StringUtil;
@@ -17,7 +16,6 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * 用户资料Service
@@ -30,11 +28,7 @@ public class UserService {
     @Autowired
     private UserPhotoService userPhotoService;
     @Autowired
-    private BaseDataService baseDataService;
-    @Autowired
     private TokenService tokenService;
-    @Autowired
-    private RedisCacheManger redisCacheManger;
     @Autowired
     AreaService areaService;
 
@@ -44,22 +38,6 @@ public class UserService {
      */
     public void update(User user) {
         user.setUpdateTime(new Date());
-        userMapper.updateByPrimaryKeySelective(user);
-    }
-
-    /**
-     * 保存
-     * @param user
-     */
-    public void updateByDomain(User user) {
-        userMapper.updateByPrimaryKeySelective(user);
-    }
-
-    /**
-     * 保存
-     * @param user
-     */
-    public void updateSign(User user) {
         userMapper.updateByPrimaryKeySelective(user);
     }
 
@@ -143,22 +121,6 @@ public class UserService {
     }
 
     /**
-     * 判断易悦号是否存在
-     * @param userCode
-     * @return
-     */
-    public Boolean isExistUser(String userCode) {
-        User user = null;
-        UserExample example = new UserExample();
-        example.createCriteria().andUserCodeEqualTo(userCode);
-        List<User> list = userMapper.selectByExample(example);
-        if (list.isEmpty()) {
-            return false;
-        }
-        return true;
-    }
-
-    /**
      * 查询用户
      * @param phone
      * @return
@@ -168,25 +130,8 @@ public class UserService {
         UserExample example = new UserExample();
         example.createCriteria().andPhoneEqualTo(phone);
         List<User> list = userMapper.selectByExample(example);
-        if (!list.isEmpty()) {
-            user = list.get(0);
-        }
+        if (!list.isEmpty()) user = list.get(0);
         return user;
-    }
-
-    /**
-     * 判断手机号是否存在
-     * @param phone
-     * @return
-     */
-    public Boolean isExistByPhone(String phone) {
-        UserExample example = new UserExample();
-        example.createCriteria().andPhoneEqualTo(phone);
-        List<User> list = userMapper.selectByExample(example);
-        if (list.isEmpty()) {
-            return false;
-        }
-        return true;
     }
 
     /**
@@ -197,26 +142,6 @@ public class UserService {
     public User getUser(Integer userId) {
         return userMapper.selectByPrimaryKey(userId);
     }
-
-    /**
-     * 获取用户称呼
-     * @param userId
-     * @return
-     */
-    private String getUserName(Integer userId) {
-        User user = getUser(userId);
-        return user.getUserName();
-    }
-
-    /**
-     * 查询用户集合
-     * @param example
-     * @return
-     */
-    public List<User> getUserList(UserExample example) {
-        return userMapper.selectByExample(example);
-    }
-
 
     /**
      * 返回用户自己的数据
@@ -233,27 +158,6 @@ public class UserService {
         userVO.setHeadPhotoName(userPhotoService.getUserPhotoName(user.getId(), false));
         userDetail.put("user", DateUtil.object2MapDateFormat(userVO));
         return userDetail;
-    }
-
-    public List<Integer> getAllUserIds() {
-        List<User> list = userMapper.selectByExample(new UserExample());
-        return list.stream().map(user -> user.getId()).collect(Collectors.toList());
-    }
-
-    /**
-     * 通过userCode查找对应用户
-     * @param userCode
-     * @return
-     */
-    public User getByUserCode(String userCode) {
-        UserExample example = new UserExample();
-        UserExample.Criteria criteria = example.createCriteria();
-        criteria.andUserCodeEqualTo(userCode);
-        List<User> users = userMapper.selectByExample(example);
-        if (!users.isEmpty()) {
-            return users.get(0);
-        }
-        return null;
     }
 
 }

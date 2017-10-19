@@ -1,6 +1,5 @@
 package com.hellogood.service;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.hellogood.constant.Code;
 import com.hellogood.constant.TokenConstants;
 import com.hellogood.domain.*;
@@ -18,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.util.Date;
 import java.util.List;
@@ -114,37 +112,6 @@ public class LoginService {
         return list.get(0);
 
     }
-
-    /**
-     * 获取客户端版本号
-     * @param userId
-     * @return
-     */
-    public String getCacheClientVersion(Integer userId) {
-        String clientVersion = userCacheManager.get(userId, UserCacheManager.UserField.APK_VERSION);
-        if (clientVersion == null) {
-            Login login = getLoginByUserId(userId);
-            if (login == null) {
-                logger.error("找不到用户[userId=" + userId + "]账户信息");
-            } else {
-                clientVersion = login.getApkVersion();
-                userCacheManager.updateApkVersion(userId, clientVersion);
-            }
-        }
-        return clientVersion;
-    }
-
-    public Login getLoginByUserIdWithOutThrow(Integer userId) {
-        LoginExample example = new LoginExample();
-        example.createCriteria().andUserIdEqualTo(userId);
-        List<Login> list = loginMapper.selectByExample(example);
-        if (list.isEmpty()) {
-            return null;
-        }
-        return list.get(0);
-
-    }
-
     /**
      * 更新
      * @param login
@@ -203,14 +170,6 @@ public class LoginService {
     }
 
     /**
-     * md5加密
-     * @return
-     */
-    public String md5Encrypt(String userCode) {
-        return DigestUtils.md5Hex(userCode);
-    }
-
-    /**
      * 网页授权，根据code获取unionid
      * @param code
      * @return
@@ -228,27 +187,6 @@ public class LoginService {
             throw new BusinessException("网页授权返回参数错误");
         }
         return (String) data.get("unionid");
-    }
-
-    /**
-     * 网页授权，根据code获取openId
-     *
-     * @param code
-     * @return
-     */
-    public String getOpenIdByCode(String code) {
-        String url = "https://api.weixin.qq.com/sns/oauth2/access_token";
-        StringBuffer sb = new StringBuffer();
-        sb.append("appid=" + StaticFileUtil.getProperty("webLicense", "appid"));
-        sb.append("&secret=" + StaticFileUtil.getProperty("webLicense", "secret"));
-        sb.append("&code=" + code);
-        sb.append("&grant_type=authorization_code");
-        String respone = HttpClientUtil.sendGet(url, sb.toString());
-        JSONObject data = new JSONObject(respone);
-        if (data.isNull("openid") || data.get("openid") == null) {
-            throw new BusinessException("网页授权返回参数错误");
-        }
-        return (String) data.get("openid");
     }
 
     /**
@@ -280,17 +218,5 @@ public class LoginService {
         loginRecordsService.add(login.getId(), loginVO);
 
         return user;
-    }
-
-    /**
-     * @param userId
-     * @return
-     */
-    public String getPhoneClient(Integer userId) {
-        Login login = this.getLoginByUserId(userId);
-        LoginRecords record = loginRecordsService.getNewestRecord(login.getId());
-        if (record == null)
-            return null;
-        return record.getClientType();
     }
 }
