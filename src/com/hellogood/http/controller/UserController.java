@@ -42,15 +42,14 @@ public class UserController extends BaseController{
 	@ResponseBody
 	public Map<String, Object> getMyInfoById(@PathVariable Integer userId, HttpServletRequest request) {
 		logger.info("UserController userId:"+userId);
+		if (userId == null || userId == 0) throw new BusinessException("参数userId有误，请重新登录");
 		Map<String, Object> map = new HashMap<String, Object>();
 		User user = userService.getUser(userId);
-		
 		if(user == null){
 			map.put(STATUS, STATUS_ERROR);
 			map.put(MESSAGE, "该用户不存在");
 			return map;
 		}
-		
 		tokenService.checkUserToken((String)request.getAttribute("token"), userId);
 		
 		Map<String, Object> userDetail = userService.getMyData(userId);

@@ -61,7 +61,6 @@ public class NoteController extends BaseController {
 	@ResponseBody
 	@RequestMapping("/setStatusById/{id}-{status}.do")
 	public Map<String, Object> setStatusById(@PathVariable Integer id, @PathVariable Integer status) {
-		logger.info("setStatusById=======id:"+id+"======status:"+status);
 		Map<String, Object> map = new HashMap<String, Object>();
 		noteService.setStatusById(id, status);
 		map.put(STATUS, STATUS_SUCCESS);
@@ -76,7 +75,6 @@ public class NoteController extends BaseController {
 	@ResponseBody
 	@RequestMapping("/deleteById/{id}.do")
 	public Map<String, Object> deleteById(@PathVariable Integer id) {
-		logger.info("deleteById=======id:"+id);
 		Map<String, Object> map = new HashMap<String, Object>();
 		noteService.deleteById(id);
 		map.put(STATUS, STATUS_SUCCESS);
@@ -134,7 +132,6 @@ public class NoteController extends BaseController {
 	@ResponseBody
 	@RequestMapping("/get/{id}.do")
 	public Map<String, Object> get(@PathVariable Integer id) {
-		logger.info("note---get---id:"+id);
 		Map<String, Object> map = new HashMap<String, Object>();
 		NoteVO vo = noteService.get(id);
 		map.put(DATA, vo);

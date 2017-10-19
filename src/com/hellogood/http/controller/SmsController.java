@@ -26,6 +26,8 @@ import java.util.Map;
  * 短信发送控制类
  * @author kejian
  */
+@Controller
+@RequestMapping(value = "/sms")
 public class SmsController extends BaseController{
 	@Autowired
 	private LoginService loginService;

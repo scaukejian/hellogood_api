@@ -6,21 +6,18 @@ import com.hellogood.constant.Code;
 import com.hellogood.domain.Note;
 import com.hellogood.domain.NoteExample;
 import com.hellogood.domain.User;
-import com.hellogood.domain.UserExample;
 import com.hellogood.exception.BusinessException;
 import com.hellogood.http.vo.NoteVO;
 import com.hellogood.mapper.NoteMapper;
 import com.hellogood.mapper.UserMapper;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.MessageFormat;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * NoteService
@@ -35,13 +32,14 @@ public class NoteService {
     @Autowired
     private UserMapper userMapper;
 
+    public static List<String> typeList = Arrays.asList("日","周","月","季","年");
+
     private void checkCommon(NoteVO vo){
         if (StringUtils.isBlank(vo.getPhoneUniqueCode()))
             throw new BusinessException("请先授权APP获取系统权限");
         if (StringUtils.isBlank(vo.getType()))
             throw new BusinessException("操作失败: 请选择计划类型");
 
-        List<String> typeList = Arrays.asList("日","周","月","季","年");
         if (!typeList.contains(vo.getType()))
             throw new BusinessException("操作失败: 计划类型只能为日、周、月、季、年");
 
@@ -75,7 +73,7 @@ public class NoteService {
      */
     public void setStatusById(Integer id, Integer status) {
         if (id == null) throw new BusinessException("请选择要操作的记录");
-        if (status == null) throw new BusinessException("参数有误");
+        if (status == null) throw new BusinessException("状态参数有误");
         Note note = noteMapper.selectByPrimaryKey(id);
         if (note == null) throw new BusinessException("参数有误");
         note.setValidStatus(status);
@@ -155,6 +153,7 @@ public class NoteService {
      */
 	@Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
     public NoteVO get(Integer id) {
+	    if (id == null || id == 0) throw new BusinessException("参数id不能为空");
         NoteVO vo = new NoteVO();
         if (id == null)  return vo;
         Note domain = getNote(id);
@@ -170,16 +169,20 @@ public class NoteService {
      */
     @Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
     public PageInfo pageQuery(NoteVO queryVo) {
-        if((queryVo.getUserId() == null || queryVo.getUserId() == 0) && StringUtils.isBlank(queryVo.getPhoneUniqueCode()))
-            throw new BusinessException("请登录后再查询");
+        if(StringUtils.isBlank(queryVo.getPhoneUniqueCode()))
+            throw new BusinessException("请先授权APP获取系统权限");
+        if (StringUtils.isBlank(queryVo.getType()))
+            throw new BusinessException("计划类型不能为空");
+        if (!typeList.contains(queryVo.getType()))
+            throw new BusinessException("操作失败: 计划类型只能为日、周、月、季、年");
         NoteExample example = new NoteExample();
         NoteExample.Criteria criteria = example.createCriteria();
-        if(queryVo.getUserId() != null && queryVo.getUserId() != 0)
-            criteria.andUserIdIn(getUserIds(queryVo));
-        if (StringUtils.isNotBlank(queryVo.getPhoneUniqueCode()))
+        if(queryVo.getUserId() != null && queryVo.getUserId() != 0) {
+            criteria.andUserIdEqualTo(queryVo.getUserId());
+        } else {
             criteria.andPhoneUniqueCodeLike(MessageFormat.format("%{0}%", queryVo.getPhoneUniqueCode()));
-        if (StringUtils.isNotBlank(queryVo.getType()))
-            criteria.andTypeEqualTo(queryVo.getType());
+        }
+        criteria.andTypeEqualTo(queryVo.getType());
         criteria.andDisplayEqualTo(Code.STATUS_VALID);
         example.setOrderByClause(" top desc, update_time desc");
         PageHelper.startPage(queryVo.getPage(), queryVo.getPageSize());
@@ -211,23 +214,6 @@ public class NoteService {
                 vo.setPhone(user.getPhone());
             }
         }
-    }
-
-
-    /**
-     * 查找计划id集合
-     * @param queryVo
-     * @return
-     */
-    public List<Integer> getUserIds(NoteVO queryVo) {
-        UserExample example = new UserExample();
-        UserExample.Criteria criteria = example.createCriteria();
-        criteria.andIdEqualTo(queryVo.getUserId());
-        List<User> userList = userMapper.selectByExample(example);
-        List<Integer> userIdList = new ArrayList<>();
-        if (!userList.isEmpty()) userIdList = userList.stream().map(user -> user.getId()).collect(Collectors.toList());
-        if (userIdList.isEmpty()) userIdList.add(-1);
-        return userIdList;
     }
 
 }

@@ -280,17 +280,13 @@ public class LoginController extends BaseController{
 	public Map<String, Object> resetPassword(@RequestBody LoginVO loginVO) throws JSONException, IOException{
 		logger.info(loginVO.toString());
 		Map<String, Object> map = new HashMap<String, Object>();
-		if(loginVO.getPassword() == null)
-			throw new BusinessException("参数有误");
-		
+		if(StringUtils.isBlank(loginVO.getPassword())) throw new BusinessException("密码不能为空");
 		Login loginInfo = resetValidate(loginVO);
-		
 		//IOS已经是md5加密的
 		String newPassword = loginVO.getPassword();
 		if("Android".equals(loginVO.getClientType())){
 			newPassword = md5Encrypt(decrypt(newPassword), loginInfo.getPhone());
 		}
-		
 		loginInfo.setPassword(newPassword);
 		loginService.updateLogin(loginInfo);
 		map.put(MESSAGE, "修改成功");
