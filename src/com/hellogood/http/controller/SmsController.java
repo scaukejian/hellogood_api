@@ -7,7 +7,9 @@ import com.hellogood.service.LoginService;
 import com.hellogood.service.SmsCodeService;
 import com.hellogood.service.UserService;
 import com.hellogood.utils.DateUtil;
+import com.hellogood.utils.RegexUtils;
 import com.hellogood.utils.SmsUtil;
+import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -24,8 +26,6 @@ import java.util.Map;
  * 短信发送控制类
  * @author kejian
  */
-@Controller
-@RequestMapping(value = "/sms")
 public class SmsController extends BaseController{
 	@Autowired
 	private LoginService loginService;
@@ -48,6 +48,12 @@ public class SmsController extends BaseController{
 	@RequestMapping(value = "/code.do")
 	public Map<String, Object> getRegisterCode(@RequestParam("mobile") String mobile, @RequestParam("type") String type){
 		Map<String, Object> result = new HashMap<String, Object>();
+		if (StringUtils.isBlank(mobile))
+			throw new BusinessException("手机号码不能为空");
+		if (!RegexUtils.isMobileExact(mobile))
+			throw new BusinessException(RegexUtils.PHONE_MSG);
+		if (StringUtils.isBlank(type))
+			throw new BusinessException("验证码类型不能为空，类型只能为register和forget");
 		Login login = null;
 		String content = null;
 		int status = 0;
@@ -84,93 +90,6 @@ public class SmsController extends BaseController{
 			sms.setTimestamp(DateUtil.getTime());
 			sms.setPhone(mobile);
 			smsCodeService.saveToRedis(sms, content);
-			result.put("timestamp", sms.getTimestamp());
-			result.put(STATUS, STATUS_SUCCESS);
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-			result.put(STATUS, STATUS_FAILED);
-			result.put(MESSAGE, "发送验证码失败! ");
-		}
-		return result;
-	}
-	
-	/**
-	 * 获取忘记密码短信验证码
-	 * @param mobile
-	 * @throws JSONException
-	 * @throws IOException
-	 */
-	@ResponseBody
-	@RequestMapping(value = "/getForgetCode.do")
-	public Map<String, Object> getForgetCode(@RequestParam("mobile") String mobile){
-		Map<String, Object> result = new HashMap<String, Object>();
-		Login login = loginService.getLoginByPhone(mobile);
-		
-		if(login == null){
-			result.put(STATUS, STATUS_FAILED);
-			result.put(MESSAGE, "此号码还未注册！");
-			return result;
-		}
-		
-		int status = 0;
-		int code = (int) ((Math.random()*9+1)*100000);
-		String content = "您的验证码是：" + code + "。请不要把验证码泄露给其他人。";
-		
-		//验证是否发送过于频繁
-		smsCodeService.validOneMinuteLimit(mobile);
-		
-		try {
-			//发送短信
-			status = SmsUtil.sendSMS(mobile, content, "");
-			//存库
-			SmsCode sms = new SmsCode();
-			sms.setCode(String.valueOf(code));
-			sms.setStatus(status);
-			sms.setTimestamp(DateUtil.getTime());
-			sms.setPhone(mobile);
-			smsCodeService.saveToRedis(sms, content);
-			result.put("timestamp", sms.getTimestamp());
-			result.put(STATUS, STATUS_SUCCESS);
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-			result.put(STATUS, STATUS_FAILED);
-			result.put(MESSAGE, "发送验证码失败! ");
-		}
-		return result;
-	}
-	
-
-	/**
-	 * 获取忘记密码短信验证码
-	 * @param mobile
-	 * @throws JSONException
-	 * @throws IOException
-	 */
-	@ResponseBody
-	@RequestMapping(value = "/getCode.do")
-	public Map<String, Object> getCode(@RequestParam("mobile") String mobile){
-		Map<String, Object> result = new HashMap<String, Object>();
-		
-		int status = 0;
-		int code = (int) ((Math.random()*9+1)*100000);
-		String content = "您的验证码是：" + code + "。请不要把验证码泄露给其他人。";
-		
-		//验证是否发送过于频繁
-		smsCodeService.validOneMinuteLimit(mobile);
-		
-		try {
-			//发送短信
-			status = SmsUtil.sendSMS(mobile, content, "");
-			//存库
-			SmsCode sms = new SmsCode();
-			sms.setCode(String.valueOf(code));
-			sms.setStatus(status);
-			sms.setTimestamp(DateUtil.getTime());
-			sms.setPhone(mobile);
-			smsCodeService.saveToRedis(sms, content);
-			result.put("isExist", userService.isExistByPhone(mobile));
 			result.put("timestamp", sms.getTimestamp());
 			result.put(STATUS, STATUS_SUCCESS);
 			
