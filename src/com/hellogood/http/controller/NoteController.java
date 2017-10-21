@@ -68,6 +68,20 @@ public class NoteController extends BaseController {
 	}
 
 	/**
+	 * 设置计划是否置顶
+	 * @param id
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping("/setTop/{id}-{status}.do")
+	public Map<String, Object> setTop(@PathVariable Integer id, @PathVariable Integer status) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		noteService.setTop(id, status);
+		map.put(STATUS, STATUS_SUCCESS);
+		return map;
+	}
+
+	/**
 	 * 删除计划
 	 * @param id
 	 * @return

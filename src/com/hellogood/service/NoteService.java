@@ -81,6 +81,20 @@ public class NoteService {
     }
 
     /**
+     * 设置是否置顶
+     * @param id
+     * @param status
+     */
+    public void setTop(Integer id, Integer status) {
+        if (id == null) throw new BusinessException("请选择要操作的记录");
+        if (status == null) throw new BusinessException("状态参数有误");
+        Note note = noteMapper.selectByPrimaryKey(id);
+        if (note == null) throw new BusinessException("参数有误");
+        note.setTop(status);
+        noteMapper.updateByPrimaryKeySelective(note);
+    }
+
+    /**
      * 批量设置状态
      * @param ids
      */
