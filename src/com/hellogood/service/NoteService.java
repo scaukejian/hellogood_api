@@ -11,6 +11,7 @@ import com.hellogood.http.vo.NoteVO;
 import com.hellogood.mapper.NoteMapper;
 import com.hellogood.mapper.UserMapper;
 import org.apache.commons.lang.StringUtils;
+import org.aspectj.weaver.ast.Not;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -60,56 +61,73 @@ public class NoteService {
         vo.vo2Domain(domain);
         domain.setCreateTime(new Date());
         domain.setUpdateTime(new Date());
-        domain.setValidStatus(Code.STATUS_VALID);
-        domain.setDisplay(Code.STATUS_VALID);
-        domain.setTop(Code.STATUS_INVALID);
+        domain.setFinish(Code.STATUS_INVALID);//未完成
+        domain.setValidStatus(Code.STATUS_VALID);//有效
+        domain.setDisplay(Code.STATUS_VALID);//显示
+        domain.setTop(Code.STATUS_INVALID);//非置顶
         noteMapper.insert(domain);
     }
 
     /**
-     * 设置状态
+     * 检查参数并返回计划
      * @param id
      * @param status
+     * @return
      */
-    public void setStatusById(Integer id, Integer status) {
+    public Note checkAndReturnNote(Integer id, Integer status) {
         if (id == null) throw new BusinessException("请选择要操作的记录");
         if (status == null) throw new BusinessException("状态参数有误");
         Note note = noteMapper.selectByPrimaryKey(id);
         if (note == null) throw new BusinessException("参数有误");
-        note.setValidStatus(status);
+        return note;
+    }
+
+    /**
+     * 放入回收站 / 移出回收站
+     * @param id
+     * @param status
+     */
+    public void recycle(Integer id, Integer status) {
+        Note note = checkAndReturnNote(id, status);
+        note.setDisplay(status);
         noteMapper.updateByPrimaryKeySelective(note);
     }
 
     /**
-     * 设置是否置顶
+     * 设置是否完成
+     * @param id
+     * @param status
+     */
+    public void finish(Integer id, Integer status) {
+        Note note = checkAndReturnNote(id, status);
+        note.setFinish(status);
+        noteMapper.updateByPrimaryKeySelective(note);
+    }
+
+    /**
+     * 初始化
+     */
+    public void initFinish(String type) {
+        NoteExample example = new NoteExample();
+        NoteExample.Criteria criteria = example.createCriteria();
+        criteria.andTypeEqualTo(type);
+        List<Note> noteList = noteMapper.selectByExample(example);
+        if (noteList.isEmpty()) return;
+        for (Note note : noteList) {
+            note.setFinish(Code.STATUS_INVALID);
+            noteMapper.updateByPrimaryKeySelective(note);
+        }
+    }
+
+    /**
+     * 设置是否置顶/收藏
      * @param id
      * @param status
      */
     public void setTop(Integer id, Integer status) {
-        if (id == null) throw new BusinessException("请选择要操作的记录");
-        if (status == null) throw new BusinessException("状态参数有误");
-        Note note = noteMapper.selectByPrimaryKey(id);
-        if (note == null) throw new BusinessException("参数有误");
+        Note note = checkAndReturnNote(id, status);
         note.setTop(status);
         noteMapper.updateByPrimaryKeySelective(note);
-    }
-
-    /**
-     * 批量设置状态
-     * @param ids
-     */
-    public void setStatus(String ids, Integer status) {
-        if (StringUtils.isBlank(ids)) throw new BusinessException("请选择要操作的记录");
-        if (status == null) throw new BusinessException("参数有误");
-        String[] idStrArr = ids.split(",");
-        for (String idStr : idStrArr) {
-            Integer noteId = Integer.parseInt(idStr);
-            Note note = noteMapper.selectByPrimaryKey(noteId);
-            if (note == null) continue;
-            if (status == note.getValidStatus()) continue;
-            note.setValidStatus(status);
-            noteMapper.updateByPrimaryKeySelective(note);
-        }
     }
 
     /**
@@ -120,7 +138,7 @@ public class NoteService {
         if (id == null) throw new BusinessException("请选择要删除的记录");
         Note note = noteMapper.selectByPrimaryKey(id);
         if (note == null) throw new BusinessException("参数有误");
-        note.setDisplay(Code.STATUS_INVALID);
+        note.setValidStatus(Code.STATUS_INVALID);
         noteMapper.updateByPrimaryKeySelective(note);
     }
 
@@ -135,7 +153,7 @@ public class NoteService {
             Integer noteId = Integer.parseInt(idStr);
             Note note = noteMapper.selectByPrimaryKey(noteId);
             if (note == null) continue;
-            note.setDisplay(Code.STATUS_INVALID);
+            note.setValidStatus(Code.STATUS_INVALID);
             noteMapper.updateByPrimaryKeySelective(note);
         }
     }

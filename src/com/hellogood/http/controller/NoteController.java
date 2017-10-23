@@ -54,21 +54,21 @@ public class NoteController extends BaseController {
 	}
 
 	/**
-	 * 设置计划状态
+	 * 设置计划是否完成
 	 * @param id
 	 * @return
 	 */
 	@ResponseBody
-	@RequestMapping("/setStatusById/{id}-{status}.do")
-	public Map<String, Object> setStatusById(@PathVariable Integer id, @PathVariable Integer status) {
+	@RequestMapping("/finish/{id}-{status}.do")
+	public Map<String, Object> finish(@PathVariable Integer id, @PathVariable Integer status) {
 		Map<String, Object> map = new HashMap<String, Object>();
-		noteService.setStatusById(id, status);
+		noteService.finish(id, status);
 		map.put(STATUS, STATUS_SUCCESS);
 		return map;
 	}
 
 	/**
-	 * 设置计划是否置顶
+	 * 设置计划是否收藏/置顶
 	 * @param id
 	 * @return
 	 */
@@ -82,35 +82,36 @@ public class NoteController extends BaseController {
 	}
 
 	/**
-	 * 删除计划
+	 * 放入回收站 / 移出回收站
 	 * @param id
 	 * @return
 	 */
 	@ResponseBody
-	@RequestMapping("/deleteById/{id}.do")
-	public Map<String, Object> deleteById(@PathVariable Integer id) {
+	@RequestMapping("/recycle/{id}-{status}.do")
+	public Map<String, Object> recycle(@PathVariable Integer id, @PathVariable Integer status) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		noteService.recycle(id, status);
+		map.put(STATUS, STATUS_SUCCESS);
+		return map;
+	}
+
+	/**
+	 * 删除
+	 * @param id
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping("/delete/{id}.do")
+	public Map<String, Object> delete(@PathVariable Integer id, @PathVariable Integer status) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		noteService.deleteById(id);
 		map.put(STATUS, STATUS_SUCCESS);
 		return map;
 	}
 
-	/**
-	 * 批量设置计划状态
-	 * @param ids
-	 * @return
-	 */
-	@ResponseBody
-	@RequestMapping("/setStatus/{ids}-{status}.do")
-	public Map<String, Object> delete(@PathVariable String ids, @PathVariable Integer status) {
-		Map<String, Object> map = new HashMap<String, Object>();
-		noteService.setStatus(ids, status);
-		map.put(STATUS, STATUS_SUCCESS);
-		return map;
-	}
 
 	/**
-	 * 批量删除计划
+	 * 批量删除/清空回收站计划
 	 * @param ids
 	 * @return
 	 */
@@ -152,5 +153,7 @@ public class NoteController extends BaseController {
 		map.put(STATUS, STATUS_SUCCESS);
 		return map;
 	}
+
+
 
 }
