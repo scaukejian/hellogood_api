@@ -207,6 +207,8 @@ public class NoteService {
             throw new BusinessException("计划类型不能为空");
         if (!typeList.contains(queryVo.getType()))
             throw new BusinessException("操作失败: 计划类型只能为日、周、月、季、年");
+        if (queryVo.getDisplay() == null)
+            throw new BusinessException("展示状态不能为空");
         NoteExample example = new NoteExample();
         NoteExample.Criteria criteria = example.createCriteria();
         if(queryVo.getUserId() != null && queryVo.getUserId() != 0) {
@@ -214,8 +216,9 @@ public class NoteService {
         } else {
             criteria.andPhoneUniqueCodeLike(MessageFormat.format("%{0}%", queryVo.getPhoneUniqueCode()));
         }
+        criteria.andDisplayEqualTo(queryVo.getDisplay());
         criteria.andTypeEqualTo(queryVo.getType());
-        criteria.andDisplayEqualTo(Code.STATUS_VALID);
+        criteria.andValidStatusEqualTo(Code.STATUS_VALID);
         example.setOrderByClause(" top desc, update_time desc");
         PageHelper.startPage(queryVo.getPage(), queryVo.getPageSize());
         List<Note> list = noteMapper.selectByExample(example);
