@@ -55,56 +55,57 @@ public class NoteController extends BaseController {
 
 	/**
 	 * 设置计划是否完成
-	 * @param id
+	 * /finish/{id}-{finish}-{phoneUniqueCode}-{userId}.do
+	 * @param noteVO
 	 * @return
 	 */
 	@ResponseBody
-	@RequestMapping("/finish/{id}-{status}.do")
-	public Map<String, Object> finish(@PathVariable Integer id, @PathVariable Integer status) {
+	@RequestMapping("/setFinish.do")
+	public Map<String, Object> setFinish(@RequestBody NoteVO noteVO) {
 		Map<String, Object> map = new HashMap<String, Object>();
-		noteService.finish(id, status);
+		noteService.setFinish(noteVO);
 		map.put(STATUS, STATUS_SUCCESS);
 		return map;
 	}
 
 	/**
 	 * 设置计划是否收藏/置顶
-	 * @param id
+	 * @param noteVO
 	 * @return
 	 */
 	@ResponseBody
-	@RequestMapping("/setTop/{id}-{status}.do")
-	public Map<String, Object> setTop(@PathVariable Integer id, @PathVariable Integer status) {
+	@RequestMapping("/setTop.do")
+	public Map<String, Object> setTop(@RequestBody NoteVO noteVO) {
 		Map<String, Object> map = new HashMap<String, Object>();
-		noteService.setTop(id, status);
+		noteService.setTop(noteVO);
 		map.put(STATUS, STATUS_SUCCESS);
 		return map;
 	}
 
 	/**
 	 * 放入回收站 / 移出回收站
-	 * @param id
+	 * @param noteVO
 	 * @return
 	 */
 	@ResponseBody
-	@RequestMapping("/recycle/{id}-{status}.do")
-	public Map<String, Object> recycle(@PathVariable Integer id, @PathVariable Integer status) {
+	@RequestMapping("/setRecycle.do")
+	public Map<String, Object> setRecycle(@RequestBody NoteVO noteVO) {
 		Map<String, Object> map = new HashMap<String, Object>();
-		noteService.recycle(id, status);
+		noteService.setRecycle(noteVO);
 		map.put(STATUS, STATUS_SUCCESS);
 		return map;
 	}
 
 	/**
 	 * 删除
-	 * @param id
+	 * @param noteVO
 	 * @return
 	 */
 	@ResponseBody
-	@RequestMapping("/delete/{id}.do")
-	public Map<String, Object> delete(@PathVariable Integer id, @PathVariable Integer status) {
+	@RequestMapping("delete.do")
+	public Map<String, Object> delete(@RequestBody NoteVO noteVO) {
 		Map<String, Object> map = new HashMap<String, Object>();
-		noteService.deleteById(id);
+		noteService.delete(noteVO);
 		map.put(STATUS, STATUS_SUCCESS);
 		return map;
 	}
@@ -112,14 +113,14 @@ public class NoteController extends BaseController {
 
 	/**
 	 * 批量删除/清空回收站计划
-	 * @param ids
+	 * @param noteVO
 	 * @return
 	 */
 	@ResponseBody
-	@RequestMapping("/delete/{ids}.do")
-	public Map<String, Object> delete(@PathVariable String ids) {
+	@RequestMapping("/deleteBatch.do")
+	public Map<String, Object> deleteBatch(@RequestBody NoteVO noteVO) {
 		Map<String, Object> map = new HashMap<String, Object>();
-		noteService.delete(ids);
+		noteService.deleteBatch(noteVO);
 		map.put(STATUS, STATUS_SUCCESS);
 		return map;
 	}
@@ -141,14 +142,14 @@ public class NoteController extends BaseController {
 
 	/**
 	 * 获取计划详细信息
-	 * @param id
+	 * @param noteVO
 	 * @return
 	 */
 	@ResponseBody
-	@RequestMapping("/get/{id}.do")
-	public Map<String, Object> get(@PathVariable Integer id) {
+	@RequestMapping("/getNote.do")
+	public Map<String, Object> getNote(@RequestBody NoteVO noteVO) {
 		Map<String, Object> map = new HashMap<String, Object>();
-		NoteVO vo = noteService.get(id);
+		NoteVO vo = noteService.get(noteVO);
 		map.put(DATA, vo);
 		map.put(STATUS, STATUS_SUCCESS);
 		return map;

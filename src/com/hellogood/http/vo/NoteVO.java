@@ -48,6 +48,26 @@ public class NoteVO {
 
     private Integer pageSize;
 
+    private Integer finish;
+
+    private String ids;
+
+    public String getIds() {
+        return ids;
+    }
+
+    public void setIds(String ids) {
+        this.ids = ids;
+    }
+
+    public Integer getFinish() {
+        return finish;
+    }
+
+    public void setFinish(Integer finish) {
+        this.finish = finish;
+    }
+
     public Integer getPage() {
         return page;
     }

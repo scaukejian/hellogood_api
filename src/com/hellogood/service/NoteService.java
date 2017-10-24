@@ -11,7 +11,6 @@ import com.hellogood.http.vo.NoteVO;
 import com.hellogood.mapper.NoteMapper;
 import com.hellogood.mapper.UserMapper;
 import org.apache.commons.lang.StringUtils;
-import org.aspectj.weaver.ast.Not;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -74,33 +73,55 @@ public class NoteService {
      * @param status
      * @return
      */
-    public Note checkAndReturnNote(Integer id, Integer status) {
+    public Note checkAndReturnNote(Integer id, Integer status, Integer userId, String phoneUniqueCode) {
         if (id == null) throw new BusinessException("请选择要操作的记录");
         if (status == null) throw new BusinessException("状态参数有误");
+        if (StringUtils.isBlank(phoneUniqueCode)) throw new BusinessException("获取设备唯一标识码失败");
         Note note = noteMapper.selectByPrimaryKey(id);
         if (note == null) throw new BusinessException("参数有误");
+        return checkAuth(note, userId, phoneUniqueCode);
+    }
+
+    /**
+     * 检查用户权限
+     * @param note
+     * @param userId
+     * @param phoneUniqueCode
+     * @return
+     */
+    public Note checkAuth(Note note, Integer userId, String phoneUniqueCode) {
+        boolean isSameUser = false;//是否同一个用户在操作计划
+        if (StringUtils.equals(note.getPhoneUniqueCode(), phoneUniqueCode)) isSameUser = true;
+        if (userId != null && note.getUserId() != null && note.getUserId().equals(userId)) isSameUser = true;
+        if (!isSameUser) throw new BusinessException("你没有权限进行此操作");
         return note;
     }
 
     /**
      * 放入回收站 / 移出回收站
-     * @param id
-     * @param status
+     * @param noteVO
      */
-    public void recycle(Integer id, Integer status) {
-        Note note = checkAndReturnNote(id, status);
-        note.setDisplay(status);
+    public void setRecycle(NoteVO noteVO) {
+        Integer id = noteVO.getId();
+        Integer display = noteVO.getDisplay();
+        Integer userId = noteVO.getUserId();
+        String phoneUniqueCode = noteVO.getPhoneUniqueCode();
+        Note note = checkAndReturnNote(id, display, userId, phoneUniqueCode);
+        note.setDisplay(display);
         noteMapper.updateByPrimaryKeySelective(note);
     }
 
     /**
      * 设置是否完成
-     * @param id
-     * @param status
+     * @param noteVO
      */
-    public void finish(Integer id, Integer status) {
-        Note note = checkAndReturnNote(id, status);
-        note.setFinish(status);
+    public void setFinish(NoteVO noteVO) {
+        Integer id = noteVO.getId();
+        Integer finish = noteVO.getFinish();
+        Integer userId = noteVO.getUserId();
+        String phoneUniqueCode = noteVO.getPhoneUniqueCode();
+        Note note = checkAndReturnNote(id, finish, userId, phoneUniqueCode);
+        note.setFinish(finish);
         noteMapper.updateByPrimaryKeySelective(note);
     }
 
@@ -121,38 +142,44 @@ public class NoteService {
 
     /**
      * 设置是否置顶/收藏
-     * @param id
-     * @param status
+     * @param noteVO
      */
-    public void setTop(Integer id, Integer status) {
-        Note note = checkAndReturnNote(id, status);
-        note.setTop(status);
+    public void setTop(NoteVO noteVO) {
+        Integer id = noteVO.getId();
+        Integer top = noteVO.getTop();
+        Integer userId = noteVO.getUserId();
+        String phoneUniqueCode = noteVO.getPhoneUniqueCode();
+        Note note = checkAndReturnNote(id, top, userId, phoneUniqueCode);
+        note.setTop(top);
         noteMapper.updateByPrimaryKeySelective(note);
     }
 
     /**
      * 删除
-     * @param id
+     * @param noteVO
      */
-    public void deleteById(Integer id) {
-        if (id == null) throw new BusinessException("请选择要删除的记录");
-        Note note = noteMapper.selectByPrimaryKey(id);
+    public void delete(NoteVO noteVO) {
+        if (noteVO.getId() == null) throw new BusinessException("请选择要删除的记录");
+        Note note = noteMapper.selectByPrimaryKey(noteVO.getId());
         if (note == null) throw new BusinessException("参数有误");
+        checkAuth(note, noteVO.getUserId(), noteVO.getPhoneUniqueCode());
         note.setValidStatus(Code.STATUS_INVALID);
         noteMapper.updateByPrimaryKeySelective(note);
     }
 
     /**
      * 批量删除
-     * @param ids
+     * @param noteVO
      */
-    public void delete(String ids) {
-        if (StringUtils.isBlank(ids)) throw new BusinessException("请选择要删除的记录");
-        String[] idStrArr = ids.split(",");
+    public void deleteBatch(NoteVO noteVO) {
+        if (StringUtils.isBlank(noteVO.getIds())) throw new BusinessException("请选择要删除的记录");
+        String[] idStrArr = noteVO.getIds().split(",");
+        if (idStrArr.length == 0) throw new BusinessException("请选择要删除的记录");
         for (String idStr : idStrArr) {
             Integer noteId = Integer.parseInt(idStr);
             Note note = noteMapper.selectByPrimaryKey(noteId);
-            if (note == null) continue;
+            if (note == null) throw new BusinessException("参数有误");
+            checkAuth(note, noteVO.getUserId(), noteVO.getPhoneUniqueCode());
             note.setValidStatus(Code.STATUS_INVALID);
             noteMapper.updateByPrimaryKeySelective(note);
         }
@@ -164,6 +191,8 @@ public class NoteService {
      */
     public void update(NoteVO vo) {
         checkCommon(vo);
+        Note note = getNote(vo.getId());
+        checkAuth(note, vo.getUserId(), vo.getPhoneUniqueCode());
         Note domain = new Note();
         vo.vo2Domain(domain);
         domain.setUpdateTime(new Date());
@@ -180,16 +209,16 @@ public class NoteService {
 
     /**
      * 获取详情
-     * @param id
+     * @param vo
      * @return
      */
 	@Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
-    public NoteVO get(Integer id) {
-	    if (id == null || id == 0) throw new BusinessException("参数id不能为空");
-        NoteVO vo = new NoteVO();
-        if (id == null)  return vo;
-        Note domain = getNote(id);
-        vo.domain2Vo(domain);
+    public NoteVO get(NoteVO vo) {
+	    if (vo.getId() == null || vo.getId() == 0) throw new BusinessException("参数id不能为空");
+        Note note = getNote(vo.getId());
+        if (note == null) throw new BusinessException("参数id有误");
+        checkAuth(note, vo.getUserId(), vo.getPhoneUniqueCode());
+        vo.domain2Vo(note);
         supplement(vo);
         return vo;
     }
@@ -203,12 +232,16 @@ public class NoteService {
     public PageInfo pageQuery(NoteVO queryVo) {
         if(StringUtils.isBlank(queryVo.getPhoneUniqueCode()))
             throw new BusinessException("请先授权APP获取系统权限");
-        if (StringUtils.isBlank(queryVo.getType()))
-            throw new BusinessException("计划类型不能为空");
-        if (!typeList.contains(queryVo.getType()))
-            throw new BusinessException("操作失败: 计划类型只能为日、周、月、季、年");
         if (queryVo.getDisplay() == null)
             throw new BusinessException("展示状态不能为空");
+        boolean needType = true;//是否需要传递类型参数，回收站，收藏夹，已完成的都不需要传递类型
+        if (queryVo.getDisplay() == Code.STATUS_INVALID) needType = false;
+        if (queryVo.getTop() == Code.STATUS_VALID) needType = false;
+        if (queryVo.getFinish() == Code.STATUS_VALID) needType = false;
+        if (StringUtils.isBlank(queryVo.getType()) && needType)
+            throw new BusinessException("计划类型不能为空");
+        if (!typeList.contains(queryVo.getType()) && needType)
+            throw new BusinessException("操作失败: 计划类型只能为日、周、月、季、年");
         NoteExample example = new NoteExample();
         NoteExample.Criteria criteria = example.createCriteria();
         if(queryVo.getUserId() != null && queryVo.getUserId() != 0) {
@@ -216,6 +249,8 @@ public class NoteService {
         } else {
             criteria.andPhoneUniqueCodeLike(MessageFormat.format("%{0}%", queryVo.getPhoneUniqueCode()));
         }
+        if (queryVo.getTop() != null) criteria.andTopEqualTo(queryVo.getTop());
+        if (queryVo.getFinish() != null) criteria.andFinishEqualTo(queryVo.getFinish());
         criteria.andDisplayEqualTo(queryVo.getDisplay());
         criteria.andTypeEqualTo(queryVo.getType());
         criteria.andValidStatusEqualTo(Code.STATUS_VALID);
