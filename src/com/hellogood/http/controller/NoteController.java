@@ -55,7 +55,6 @@ public class NoteController extends BaseController {
 
 	/**
 	 * 设置计划是否完成
-	 * /finish/{id}-{finish}-{phoneUniqueCode}-{userId}.do
 	 * @param noteVO
 	 * @return
 	 */
