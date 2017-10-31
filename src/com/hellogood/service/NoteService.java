@@ -3,6 +3,7 @@ package com.hellogood.service;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.hellogood.constant.Code;
+import com.hellogood.domain.BootUp;
 import com.hellogood.domain.Note;
 import com.hellogood.domain.NoteExample;
 import com.hellogood.domain.User;
@@ -31,6 +32,8 @@ public class NoteService {
     private NoteMapper noteMapper;
     @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private BootUpService bootUpService;
 
     public static List<String> typeList = Arrays.asList("日","周","月","季","年");
 
@@ -125,19 +128,42 @@ public class NoteService {
         noteMapper.updateByPrimaryKeySelective(note);
     }
 
+    public List<Note> getNoteByType(String type) {
+        NoteExample example = new NoteExample();
+        NoteExample.Criteria criteria = example.createCriteria();
+        criteria.andTypeEqualTo(type);
+        return noteMapper.selectByExample(example);
+    }
+
     /**
      * 初始化
      */
     public void initFinish(String type) {
-        NoteExample example = new NoteExample();
-        NoteExample.Criteria criteria = example.createCriteria();
-        criteria.andTypeEqualTo(type);
-        List<Note> noteList = noteMapper.selectByExample(example);
+        List<Note> noteList = getNoteByType(type);
         if (noteList.isEmpty()) return;
         for (Note note : noteList) {
             note.setFinish(Code.STATUS_INVALID);
             noteMapper.updateByPrimaryKeySelective(note);
         }
+    }
+
+    /**
+     * 提醒用户type类型计划未完成的记录条数
+     */
+    public void noticeUserFinishPlan(String type) {
+        List<Note> noteList = getNoteByType(type);
+        if (noteList.isEmpty()) return;
+        Set<Integer> userIdSet = new HashSet<>();
+        Set<String> phoneUniqueCodeSet = new HashSet<>();
+        for (Note note : noteList) {
+            if (note.getUserId() != null) {
+                userIdSet.add(note.getUserId());
+            } else {
+                phoneUniqueCodeSet.add(note.getPhoneUniqueCode());
+            }
+        }
+        List<BootUp>bootUpList = bootUpService.getBootUpByUserIds(new ArrayList<>(userIdSet));
+
     }
 
     /**

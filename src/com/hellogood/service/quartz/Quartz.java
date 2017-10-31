@@ -31,6 +31,17 @@ public class Quartz {
 		logger.info("日计划的完成状态设置为未完成执行完毕...");
 	}
 
+	/**
+	 *  提醒用户每日计划未完成的记录条数
+	 * 晚上18(第三位数)点执行一次
+	 */
+	@Scheduled(cron="0 0 18 * * ?")
+	public void noticeUserFinishPlanByDay() {
+		logger.info("提醒用户每日计划未完成的记录条数...");
+		noteService.noticeUserFinishPlan("天");
+		logger.info("提醒用户每日计划未完成的记录条数执行完毕...");
+	}
+
     /**
 	 * 每周计划的完成状态设置为未完成
      * 每周日凌晨0点执行一次 cron = "0 0 0 ? * SUN"
