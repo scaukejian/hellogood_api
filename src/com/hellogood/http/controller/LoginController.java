@@ -1,11 +1,10 @@
 package com.hellogood.http.controller;
 
-import com.hellogood.constant.Code;
 import com.hellogood.constant.ResponseCode;
 import com.hellogood.constant.TokenConstants;
-import com.hellogood.constant.UserConstants;
 import com.hellogood.domain.*;
 import com.hellogood.exception.BusinessException;
+import com.hellogood.http.vo.BootUpVO;
 import com.hellogood.http.vo.LoginVO;
 import com.hellogood.http.vo.RegisterVO;
 import com.hellogood.service.*;
@@ -394,17 +393,17 @@ public class LoginController extends BaseController{
 	}
 	
 	/**
-	 * app启动更新启动时间
-	 * @param loginVO
+	 * app启动或用户登录更新个推clientId
+	 * @param bootUpVO
 	 * @throws JSONException
 	 * @throws IOException
 	 */
 	@ResponseBody
-	@RequestMapping(value = "/updateBootUpTime.do", method = RequestMethod.POST)
-	public Map<String, Object> updateBootUpTime(@RequestBody LoginVO loginVO) throws JSONException, IOException {
+	@RequestMapping(value = "/bootUp.do", method = RequestMethod.POST)
+	public Map<String, Object> updateBootUpTime(@RequestBody BootUpVO bootUpVO) throws JSONException, IOException {
 		Map<String, Object> map = new HashMap<String, Object>();
-		logger.info(loginVO.toString());
-		loginService.updateBootUpTime(loginVO);
+		logger.info(bootUpVO.toString());
+		loginService.bootUp(bootUpVO);
 		map.put(STATUS, STATUS_SUCCESS);
 		return map;
 	}

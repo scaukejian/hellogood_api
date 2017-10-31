@@ -5,12 +5,14 @@ import com.hellogood.constant.TokenConstants;
 import com.hellogood.domain.*;
 import com.hellogood.exception.BusinessException;
 import com.hellogood.exception.UserRegisterOperateException;
+import com.hellogood.http.vo.BootUpVO;
 import com.hellogood.http.vo.LoginVO;
 import com.hellogood.http.vo.RegisterVO;
 import com.hellogood.mapper.LoginMapper;
 import com.hellogood.utils.HttpClientUtil;
 import com.hellogood.utils.StaticFileUtil;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +42,8 @@ public class LoginService {
     UserCacheManager userCacheManager;
     @Autowired
     ThirdPartyLoginService thirdPartyLoginService;
+    @Autowired
+    BootUpService bootUpService;
 
     public static Logger logger = LoggerFactory.getLogger(LoginService.class);
 
@@ -120,13 +124,39 @@ public class LoginService {
         loginMapper.updateByPrimaryKey(login);
     }
 
-    public void updateBootUpTime(LoginVO loginVO) {
-        if (loginVO.getUserId() != null && loginVO.getUserId() > 0) {
-            Login login = this.getLoginByUserId(loginVO.getUserId());
-            login.setLastBootUpTime(new Date());
-            loginMapper.updateByPrimaryKey(login);
-        }
 
+    /**
+     * 启动APP或者用户登录更新个推CID
+     * @param bootUpVO
+     */
+    public void bootUp(BootUpVO bootUpVO) {
+        Integer userId = bootUpVO.getUserId();
+        String phoneUniqueCode = bootUpVO.getPhoneUniqueCode();
+        if (userId == null && StringUtils.isBlank(phoneUniqueCode))
+            throw new BusinessException("请先授权APP获取系统权限");
+        if (StringUtils.isBlank(bootUpVO.getPhoneClient()))
+            throw new BusinessException("客户端类型不能为空");
+        if (StringUtils.isBlank(bootUpVO.getApkVersion()))
+            throw new BusinessException("APP版本不能为空");
+        if (StringUtils.isBlank(bootUpVO.getClientId()))
+            throw new BusinessException("个推CID不能为空");
+        BootUp bootUp = null;
+        if (userId != null) {
+            bootUp = bootUpService.getBootUpByUserId(userId);
+        } else {
+            bootUp = bootUpService.getBootUpByPhoneUniqueCode(phoneUniqueCode);
+        }
+        if (bootUp == null) {
+            bootUp = new BootUp();
+            bootUp.setUserId(userId);
+            bootUp.setPhoneUniqueCode(phoneUniqueCode);
+            bootUp.setCreateTime(new Date());
+        }
+        bootUp.setPhoneClient(bootUpVO.getPhoneClient());
+        bootUp.setApkVersion(bootUpVO.getApkVersion());
+        bootUp.setClientId(bootUpVO.getClientId());
+        bootUp.setUpdateTime(new Date());
+        bootUpService.saveOrUpdate(bootUp);
     }
 
     /**
