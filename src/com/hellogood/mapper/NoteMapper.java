@@ -3,6 +3,8 @@ package com.hellogood.mapper;
 import com.hellogood.domain.Note;
 import com.hellogood.domain.NoteExample;
 import java.util.List;
+
+import com.hellogood.http.vo.NoteVO;
 import org.apache.ibatis.annotations.Param;
 
 public interface NoteMapper {
@@ -25,4 +27,18 @@ public interface NoteMapper {
     int updateByPrimaryKeySelective(Note record);
 
     int updateByPrimaryKey(Note record);
+
+    /**
+     * 查找用户id未完成的type类型计划数
+     * @param type
+     * @return
+     */
+    List<NoteVO> getUserIdAndCountMap(@Param("type") String type);
+
+    /**
+     * 查找设备未完成的type类型计划数
+     * @param type
+     * @return
+     */
+    List<NoteVO> getPhoneUniqueCodeAndCountMap(@Param("type") String type);
 }

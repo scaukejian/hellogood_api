@@ -206,34 +206,6 @@ public class BaseDataService {
 		}
 		return null;
 	}
-	
-	/**
-	 * 获取基础客服账号用户id List
-	 * @return
-	 */
-	public List<Integer> getCustomerUidList(){
-		BaseDataExample example = new BaseDataExample();
-		example.createCriteria().andTypeEqualTo(Code.DATA_TYPE_CUSTOMER_SERVICE).andStatusEqualTo(Code.STATUS_VALID);
-		List<BaseData> list = baseDataMapper.selectByExample(example);
-		List<Integer> uidList = new ArrayList<Integer>();
-		if(list != null && list.size() > 0){
-			for(BaseData baseData : list)
-				uidList.add(Integer.parseInt(baseData.getCode()));
-		}
-		return uidList;
-	}
-	
-	/**
-	 * 随机获取一条模板签名
-	 * @return
-	 */
-	public String getSign(){
-		List<BaseData> list = getData(Code.DATA_TYPE_SIGN);
-		if(list == null)
-			return null;
-		int index = RandomUtils.nextInt(10000)%list.size();
-		return list.get(index).getName();
-	}
 
 	/**
 	 * 按类型缓存

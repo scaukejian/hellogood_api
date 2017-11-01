@@ -52,6 +52,26 @@ public class NoteVO {
 
     private String ids;
 
+    private Integer userIdCount;
+
+    private Integer phoneUniqueCodeCount;
+
+    public Integer getUserIdCount() {
+        return userIdCount;
+    }
+
+    public void setUserIdCount(Integer userIdCount) {
+        this.userIdCount = userIdCount;
+    }
+
+    public Integer getPhoneUniqueCodeCount() {
+        return phoneUniqueCodeCount;
+    }
+
+    public void setPhoneUniqueCodeCount(Integer phoneUniqueCodeCount) {
+        this.phoneUniqueCodeCount = phoneUniqueCodeCount;
+    }
+
     public String getIds() {
         return ids;
     }

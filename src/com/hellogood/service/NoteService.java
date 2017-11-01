@@ -1,5 +1,10 @@
 package com.hellogood.service;
 
+import com.gexin.rp.sdk.base.IPushResult;
+import com.gexin.rp.sdk.base.impl.ListMessage;
+import com.gexin.rp.sdk.base.impl.Target;
+import com.gexin.rp.sdk.http.IGtPush;
+import com.gexin.rp.sdk.template.NotificationTemplate;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.hellogood.constant.Code;
@@ -11,7 +16,11 @@ import com.hellogood.exception.BusinessException;
 import com.hellogood.http.vo.NoteVO;
 import com.hellogood.mapper.NoteMapper;
 import com.hellogood.mapper.UserMapper;
+import com.hellogood.utils.AppPush;
+import com.hellogood.utils.StaticFileUtil;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -31,11 +40,11 @@ public class NoteService {
     @Autowired
     private NoteMapper noteMapper;
     @Autowired
-    private UserMapper userMapper;
+    private UserService userService;
     @Autowired
     private BootUpService bootUpService;
 
-    public static List<String> typeList = Arrays.asList("日","周","月","季","年");
+    private Logger logger = LoggerFactory.getLogger(NoteService.class);
 
     private void checkCommon(NoteVO vo){
         if (StringUtils.isBlank(vo.getPhoneUniqueCode()))
@@ -43,7 +52,7 @@ public class NoteService {
         if (StringUtils.isBlank(vo.getType()))
             throw new BusinessException("操作失败: 请选择计划类型");
 
-        if (!typeList.contains(vo.getType()))
+        if (!Code.typeList.contains(vo.getType()))
             throw new BusinessException("操作失败: 计划类型只能为日、周、月、季、年");
 
         if (StringUtils.isBlank(vo.getContent()))
@@ -151,19 +160,66 @@ public class NoteService {
      * 提醒用户type类型计划未完成的记录条数
      */
     public void noticeUserFinishPlan(String type) {
-        List<Note> noteList = getNoteByType(type);
-        if (noteList.isEmpty()) return;
-        Set<Integer> userIdSet = new HashSet<>();
-        Set<String> phoneUniqueCodeSet = new HashSet<>();
-        for (Note note : noteList) {
-            if (note.getUserId() != null) {
-                userIdSet.add(note.getUserId());
-            } else {
-                phoneUniqueCodeSet.add(note.getPhoneUniqueCode());
+        List<NoteVO> noteList = noteMapper.getUserIdAndCountMap(type);
+        if (!noteList.isEmpty()) {
+            for (NoteVO vo : noteList) {
+                Integer userId = vo.getUserId();
+                Integer userIdCount = vo.getUserIdCount();
+                BootUp bootUp = bootUpService.getBootUpByUserId(userId);
+                if (bootUp == null) continue;
+                String clientId = bootUp.getClientId();
+                if (StringUtils.isBlank(clientId)) continue;
+                User user = userService.getUser(userId);
+                if (user.getUserName() == null) user.setUserName("");
+                pushMessage(user.getUserName(), userIdCount, clientId, type);
             }
         }
-        List<BootUp>bootUpList = bootUpService.getBootUpByUserIds(new ArrayList<>(userIdSet));
+        List<NoteVO> noteList_uniqueCode = noteMapper.getPhoneUniqueCodeAndCountMap(type);
+        if (!noteList_uniqueCode.isEmpty()) {
+            for (NoteVO vo : noteList_uniqueCode) {
+                String phoneUniqueCode = vo.getPhoneUniqueCode();
+                Integer phoneUniqueCodeCount = vo.getPhoneUniqueCodeCount();
+                BootUp bootUp = bootUpService.getBootUpByPhoneUniqueCode(phoneUniqueCode);
+                if (bootUp == null) continue;
+                String clientId = bootUp.getClientId();
+                if (StringUtils.isBlank(clientId)) continue;
+                pushMessage("", phoneUniqueCodeCount, clientId, type);
+            }
+        }
 
+    }
+
+    /**
+     * 发送个推消息给用户
+     * @param name 用户姓名，如果没登录为空字符串
+     * @param count 未完成计划数
+     * @param clientId 个推CID终端标识
+     */
+    public void pushMessage(String name, Integer count, String clientId, String type) {
+        IGtPush push = new IGtPush(Code.APPKEY, Code.MASTER_SECRET);
+        String transmissionContent = "【渣渣计划】亲爱的" + name + ",";
+        String text = transmissionContent;
+        String title = "您还有" + count + "条"+type+"计划未完成哟~";
+        // 点击通知打开应用模板
+        NotificationTemplate template = AppPush.notificationTemplate(Code.APPID, Code.APPKEY, transmissionContent,
+                text, title, Code.LOGO, Code.LOGO_URL);
+        ListMessage message = new ListMessage();
+        message.setData(template);
+        // 设置消息离线，并设置离线时间
+        message.setOffline(true);
+        // 离线有效时间，单位为毫秒，可选
+        message.setOfflineExpireTime(5 * 3600 * 1000);
+        // 配置推送目标
+        List targets = new ArrayList();
+        //发送目标
+        Target target = new Target();
+        target.setAppId(Code.APPID);
+        target.setClientId(clientId);
+        targets.add(target);//放到目标列表
+        // taskId用于在推送时去查找对应的message
+        String taskId = push.getContentId(message);
+        IPushResult ret = push.pushMessageToList(taskId, targets);
+        logger.info(ret.getResponse().toString());
     }
 
     /**
@@ -266,7 +322,7 @@ public class NoteService {
         if (queryVo.getFinish() == Code.STATUS_VALID) needType = false;
         if (StringUtils.isBlank(queryVo.getType()) && needType)
             throw new BusinessException("计划类型不能为空");
-        if (!typeList.contains(queryVo.getType()) && needType)
+        if (!Code.typeList.contains(queryVo.getType()) && needType)
             throw new BusinessException("操作失败: 计划类型只能为日、周、月、季、年");
         NoteExample example = new NoteExample();
         NoteExample.Criteria criteria = example.createCriteria();
@@ -303,7 +359,7 @@ public class NoteService {
 
     public void supplement(NoteVO vo) {
         if (vo.getUserId() != null) {
-            User user = userMapper.selectByPrimaryKey(vo.getUserId());
+            User user = userService.getUser(vo.getUserId());
             if (user != null) {
                 vo.setUserCode(user.getUserCode());
                 vo.setUserName(user.getUserName());

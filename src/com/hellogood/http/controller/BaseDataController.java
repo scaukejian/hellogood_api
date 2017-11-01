@@ -34,8 +34,6 @@ public class BaseDataController extends BaseController{
 	
 	@Autowired
 	private BaseDataService baseDataService;
-	@Autowired
-	private AreaService areaService;
 
 	
 	@ResponseBody

@@ -21,7 +21,7 @@ import java.util.List;
  */
 public class AppPush {
 
-    //定义常量, appId、appKey、masterSecret 采用本文档 "第二步 获取访问凭证 "中获得的应用配置
+    //定义常量, appId、appKey、masterSecret
     private static String appId = StaticFileUtil.getProperty("getui", "appId");
     private static String appKey = StaticFileUtil.getProperty("getui", "appKey");
     private static String masterSecret = StaticFileUtil.getProperty("getui", "masterSecret");
@@ -32,6 +32,7 @@ public class AppPush {
 
     /**
      * 按照需求给指定用户列表发送通知
+     *
      * @param args
      * @throws IOException
      */
@@ -42,7 +43,7 @@ public class AppPush {
         // System.setProperty("gexin_pushList_needAliasDetails", "true");
         IGtPush push = new IGtPush(appKey, masterSecret);
         // 通知透传模板
-        NotificationTemplate template = notificationTemplateDemo(appId, appKey);
+        NotificationTemplate template = notificationTemplate(appId, appKey, "今天还有3条计划未完成哟", "您好XXX,","今天还有3条计划未完成哟","test.logo","asdsd");
         ListMessage message = new ListMessage();
         message.setData(template);
         // 设置消息离线，并设置离线时间
@@ -70,13 +71,13 @@ public class AppPush {
     /**
      * 测试单条推送
      */
-    public void  testSinglePush() {
+    public void testSinglePush() {
         // https连接
         IGtPush push = new IGtPush(appKey, masterSecret);
         // 此处true为https域名，false为http，默认为false。Java语言推荐使用此方式
         // IGtPush push = new IGtPush(host, appkey, master);
         // host为域名，根据域名区分是http协议/https协议
-        LinkTemplate template = linkTemplateDemo(appId, appKey);
+        LinkTemplate template = linkTemplate(appId, appKey);
         SingleMessage message = new SingleMessage();
         message.setOffline(true);
         // 离线有效时间，单位为毫秒，可选
@@ -104,36 +105,39 @@ public class AppPush {
 
     /**
      * 点击通知打开应用模板
+     *
      * @param appId
      * @param appkey
      * @return
      */
-    public static NotificationTemplate notificationTemplateDemo(String appId, String appkey) {
+    public static NotificationTemplate notificationTemplate(String appId, String appkey, String content, String title, String text
+            , String logo, String logoUrl) {
         NotificationTemplate template = new NotificationTemplate();
         // 设置APPID与APPKEY
         template.setAppId(appId);
         template.setAppkey(appkey);
         // 透传消息设置，1为强制启动应用，客户端接收到消息后就会立即启动应用；2为等待应用启动
         template.setTransmissionType(1);
-        template.setTransmissionContent("今天还有3条计划未完成哟~");
+        template.setTransmissionContent(content);
         // 设置定时展示时间
         // template.setDuration("2015-01-16 11:40:00", "2015-01-16 12:24:00");
-        template.setTitle("亲爱的，尼玛");
-        template.setText("今天还有3条计划未完成哟~");
+        template.setTitle(title);
+        template.setText(text);
         // 配置通知栏图标
-        template.setLogo("star-full.ico");
+        template.setLogo(logo);
         // 配置通知栏网络图标
-        template.setLogoUrl("http://www.iconpng.com/download/ico/101002");
+        template.setLogoUrl(logoUrl);
         return template;
     }
 
     /**
      * 点击通知打开网页链接
+     *
      * @param appId
      * @param appKey
      * @return
      */
-    public static LinkTemplate linkTemplateDemo(String appId, String appKey) {
+    public static LinkTemplate linkTemplate(String appId, String appKey) {
         LinkTemplate template = new LinkTemplate();
         // 设置APPID与APPKEY
         template.setAppId(appId);
@@ -154,11 +158,12 @@ public class AppPush {
 
     /**
      * 点击通知下载文件
+     *
      * @param appId
      * @param appKey
      * @return
      */
-    public static NotyPopLoadTemplate notyPopLoadTemplateDemo(String appId, String appKey) {
+    public static NotyPopLoadTemplate notyPopLoadTemplate(String appId, String appKey) {
         NotyPopLoadTemplate template = new NotyPopLoadTemplate();
         // 设置APPID与APPKEY
         template.setAppId(appId);
@@ -184,9 +189,10 @@ public class AppPush {
 
     /**
      * 透传消息模板
+     *
      * @return
      */
-    public static TransmissionTemplate transmissionTemplateDemo() {
+    public static TransmissionTemplate transmissionTemplate() {
         TransmissionTemplate template = new TransmissionTemplate();
         template.setAppId(appId);
         template.setAppkey(appKey);

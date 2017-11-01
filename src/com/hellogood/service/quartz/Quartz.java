@@ -27,19 +27,8 @@ public class Quartz {
 	@Scheduled(cron="0 0 0 * * ?")
 	public void initFinishByDay() {
 		logger.info("日计划的完成状态设置为未完成开始执行...");
-		noteService.initFinish("天");
+		noteService.initFinish("日");
 		logger.info("日计划的完成状态设置为未完成执行完毕...");
-	}
-
-	/**
-	 *  提醒用户每日计划未完成的记录条数
-	 * 晚上18(第三位数)点执行一次
-	 */
-	@Scheduled(cron="0 0 18 * * ?")
-	public void noticeUserFinishPlanByDay() {
-		logger.info("提醒用户每日计划未完成的记录条数...");
-		noteService.noticeUserFinishPlan("天");
-		logger.info("提醒用户每日计划未完成的记录条数执行完毕...");
 	}
 
     /**
@@ -84,5 +73,59 @@ public class Quartz {
 		logger.info("年计划的完成状态设置为未完成开始执行...");
 		noteService.initFinish("年");
 		logger.info("年计划的完成状态设置为未完成执行完毕...");
+	}
+
+	/**
+	 *  提醒用户每日计划未完成的记录条数
+	 * 晚上19(第三位数)点执行一次
+	 */
+	@Scheduled(cron="0 0 19 * * ?")
+	public void noticeUserFinishPlanByDay() {
+		logger.info("提醒用户每日计划未完成的记录条数...");
+		noteService.noticeUserFinishPlan("日");
+		logger.info("提醒用户每日计划未完成的记录条数执行完毕...");
+	}
+
+	/**
+	 *  提醒用户每周计划未完成的记录条数
+	 * 晚上19(第三位数)点执行一次
+	 */
+	@Scheduled(cron = "0 0 19 ? * FRI")
+	public void noticeUserFinishPlanByWeek() {
+		logger.info("提醒用户每周计划未完成的记录条数...");
+		noteService.noticeUserFinishPlan("周");
+		logger.info("提醒用户每周计划未完成的记录条数执行完毕...");
+	}
+
+	/**
+	 *  提醒用户每月计划未完成的记录条数
+	 * 25号晚上19(第三位数)点执行一次
+	 */
+	@Scheduled(cron = "0 0 19 25 * ?")
+	public void noticeUserFinishPlanByMonth() {
+		logger.info("提醒用户每月计划未完成的记录条数...");
+		noteService.noticeUserFinishPlan("月");
+		logger.info("提醒用户每月计划未完成的记录条数执行完毕...");
+	}
+
+	/**
+	 *  提醒用户每季计划未完成的记录条数
+	 *  2,5,8,11月25号晚上19(第三位数)点执行一次
+	 */
+	@Scheduled(cron = "0 0 19 25 2,5,8,11 ?")
+	public void noticeUserFinishPlanBySeason() {
+		logger.info("提醒用户每季计划未完成的记录条数...");
+		noteService.noticeUserFinishPlan("季");
+		logger.info("提醒用户每季计划未完成的记录条数执行完毕...");
+	}
+	/**
+	 *  提醒用户每年计划未完成的记录条数
+	 *  12月1号晚上19(第三位数)点执行一次
+	 */
+	@Scheduled(cron = "0 0 19 1 12 ?")
+	public void noticeUserFinishPlanByYear() {
+		logger.info("提醒用户每年计划未完成的记录条数...");
+		noteService.noticeUserFinishPlan("年");
+		logger.info("提醒用户每年计划未完成的记录条数执行完毕...");
 	}
 }
