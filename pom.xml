@@ -317,6 +317,17 @@
 			<artifactId>jackson-mapper-asl</artifactId>
 			<version>1.9.13</version>
 		</dependency>
+		<!-- 阿里大于短信 -->
+		<dependency>
+			<groupId>aliyun-java-sdk</groupId>
+			<artifactId>aliyun-java-sdk</artifactId>
+			<version>3.3.1</version>
+		</dependency>
+		<dependency>
+			<groupId>aliyun-java-sdk-dysmsapi</groupId>
+			<artifactId>aliyun-java-sdk-dysmsapi</artifactId>
+			<version>1.0.0</version>
+		</dependency>
     </dependencies>
 
 	<repositories>

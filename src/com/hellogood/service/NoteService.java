@@ -13,6 +13,7 @@ import com.hellogood.domain.Note;
 import com.hellogood.domain.NoteExample;
 import com.hellogood.domain.User;
 import com.hellogood.exception.BusinessException;
+import com.hellogood.http.task.NoticeExecutor;
 import com.hellogood.http.vo.NoteVO;
 import com.hellogood.mapper.NoteMapper;
 import com.hellogood.mapper.UserMapper;
@@ -171,7 +172,7 @@ public class NoteService {
                 if (StringUtils.isBlank(clientId)) continue;
                 User user = userService.getUser(userId);
                 if (user.getUserName() == null) user.setUserName("");
-                pushMessage(user.getUserName(), userIdCount, clientId, type);
+                NoticeExecutor.getExecutor().execute(() -> pushMessage(user.getUserName(), userIdCount, clientId, type));
             }
         }
         List<NoteVO> noteList_uniqueCode = noteMapper.getPhoneUniqueCodeAndCountMap(type);
@@ -183,7 +184,7 @@ public class NoteService {
                 if (bootUp == null) continue;
                 String clientId = bootUp.getClientId();
                 if (StringUtils.isBlank(clientId)) continue;
-                pushMessage("", phoneUniqueCodeCount, clientId, type);
+                NoticeExecutor.getExecutor().execute(() -> pushMessage("", phoneUniqueCodeCount, clientId, type));
             }
         }
 

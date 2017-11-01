@@ -310,10 +310,10 @@ public class LoginController extends BaseController{
         if(!smsCode.getCode().equals(loginVO.getCode()))
         	throw new BusinessException("验证码有误");
       
-        //设置10分钟超时
+        //设置5分钟超时
         Calendar cal = Calendar.getInstance();
         cal.setTime(new Date());
-        cal.add(Calendar.MINUTE, -10);
+        cal.add(Calendar.MINUTE, -5);
         if(cal.getTime().getTime() > smsCode.getTimestamp())
         	throw new BusinessException("验证码超时，请重新获取");
         

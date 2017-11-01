@@ -1,13 +1,15 @@
 package com.hellogood.http.controller;
 
+import com.aliyuncs.dysmsapi.model.v20170525.SendSmsResponse;
+import com.hellogood.constant.Code;
 import com.hellogood.domain.Login;
 import com.hellogood.domain.SmsCode;
 import com.hellogood.exception.BusinessException;
 import com.hellogood.service.LoginService;
 import com.hellogood.service.SmsCodeService;
+import com.hellogood.utils.AliSmsUtil;
 import com.hellogood.utils.DateUtil;
 import com.hellogood.utils.RegexUtils;
-import com.hellogood.utils.SmsUtil;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -72,17 +74,22 @@ public class SmsController extends BaseController{
 		String content = "您的验证码是：" + code + "。请不要把验证码泄露给其他人。";
 		try {
 			//发送短信
-			int status = SmsUtil.sendSMS(mobile, content, "");
-			//存库
-			SmsCode sms = new SmsCode();
-			sms.setCode(String.valueOf(code));
-			sms.setStatus(status);
-			sms.setTimestamp(DateUtil.getTime());
-			sms.setPhone(mobile);
-			smsCodeService.saveToRedis(sms, content);
-			result.put("timestamp", sms.getTimestamp());
-			result.put(STATUS, STATUS_SUCCESS);
-			
+			SendSmsResponse response = AliSmsUtil.sendSms(mobile, code);
+			logger.info("短信接口返回的数据----------------");
+			logger.info("Code=" + response.getCode());
+			logger.info("Message=" + response.getMessage());
+			logger.info("RequestId=" + response.getRequestId());
+			logger.info("BizId=" + response.getBizId());
+			if (StringUtils.equals(response.getCode(), "OK")) { //存库
+				SmsCode sms = new SmsCode();
+				sms.setCode(String.valueOf(code));
+				sms.setStatus(Code.STATUS_VALID);
+				sms.setTimestamp(DateUtil.getTime());
+				sms.setPhone(mobile);
+				smsCodeService.saveToRedis(sms, content);
+				result.put("timestamp", sms.getTimestamp());
+				result.put(STATUS, STATUS_SUCCESS);
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			result.put(STATUS, STATUS_FAILED);
