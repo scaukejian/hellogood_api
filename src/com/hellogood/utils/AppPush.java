@@ -10,6 +10,7 @@ import com.gexin.rp.sdk.template.LinkTemplate;
 import com.gexin.rp.sdk.template.NotificationTemplate;
 import com.gexin.rp.sdk.template.NotyPopLoadTemplate;
 import com.gexin.rp.sdk.template.TransmissionTemplate;
+import com.hellogood.constant.Code;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -43,7 +44,7 @@ public class AppPush {
         // System.setProperty("gexin_pushList_needAliasDetails", "true");
         IGtPush push = new IGtPush(appKey, masterSecret);
         // 通知透传模板
-        NotificationTemplate template = notificationTemplate(appId, appKey, "今天还有3条计划未完成哟", "您好XXX,","今天还有3条计划未完成哟","test.logo","asdsd");
+        NotificationTemplate template = notificationTemplate(appId, appKey, "今天还有3条计划未完成哟", "您好XXX,","今天还有3条计划未完成哟", Code.LOGO, Code.LOGO_URL);
         ListMessage message = new ListMessage();
         message.setData(template);
         // 设置消息离线，并设置离线时间
@@ -125,6 +126,8 @@ public class AppPush {
         template.setText(text);
         // 配置通知栏图标
         template.setLogo(logo);
+        System.out.println(logo);
+        System.out.println(logoUrl);
         // 配置通知栏网络图标
         template.setLogoUrl(logoUrl);
         return template;

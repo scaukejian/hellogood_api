@@ -336,6 +336,7 @@ public class NoteService {
         if (queryVo.getFinish() != null) criteria.andFinishEqualTo(queryVo.getFinish());
         criteria.andDisplayEqualTo(queryVo.getDisplay());
         if (StringUtils.isNotBlank(queryVo.getType())) criteria.andTypeEqualTo(queryVo.getType());
+        if (StringUtils.isNotBlank(queryVo.getContent())) criteria.andContentLike(MessageFormat.format("%{0}%", queryVo.getContent()));
         criteria.andValidStatusEqualTo(Code.STATUS_VALID);
         example.setOrderByClause(" top desc, update_time desc");
         PageHelper.startPage(queryVo.getPage(), queryVo.getPageSize());
