@@ -84,18 +84,18 @@
     <result column="user_id_count" property="userIdCount" jdbcType="INTEGER" />
     <result column="phone_unique_code_count" property="phoneUniqueCodeCount" jdbcType="INTEGER" />
   </resultMap>
-  <select id="getUserIdAndCountMap" resultMap="resultMap" parameterType="java.lang.String">
+  <select id="getUserIdAndCountMap" resultMap="resultMap" parameterType="java.lang.Integer">
     SELECT user_id, count(1) as user_id_count FROM `api_note`
     where user_id is not null
     and valid_status = 1 and display = 1 and finish = 0
-    and type = #{type}
+    and folder_id = #{folderId}
     group by user_id
   </select>
-  <select id="getPhoneUniqueCodeAndCountMap" resultMap="resultMap" parameterType="java.lang.String">
+  <select id="getPhoneUniqueCodeAndCountMap" resultMap="resultMap" parameterType="java.lang.Integer">
     SELECT phone_unique_code, count(1) as phone_unique_code_count FROM `api_note`
     where user_id is null
     and valid_status = 1 and display = 1 and finish = 0
-    and type = #{type}
+    and folder_id = #{folderId}
     group by user_id
   </select>
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.hellogood.domain.NoteExample" >

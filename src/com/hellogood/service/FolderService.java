@@ -1,16 +1,16 @@
 package com.hellogood.service;
 
-import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.hellogood.constant.Code;
 import com.hellogood.domain.Folder;
 import com.hellogood.domain.FolderExample;
 import com.hellogood.exception.BusinessException;
 import com.hellogood.http.vo.FolderVO;
 import com.hellogood.mapper.FolderMapper;
+import com.hellogood.service.redis.RedisCacheManger;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -30,6 +30,10 @@ public class FolderService {
 
     @Autowired
     private FolderMapper folderMapper;
+    @Autowired
+    private RedisCacheManger redisCacheManger;
+
+    private Gson gson = new Gson();
 
     private void checkCommon(FolderVO vo){
         if (vo.getUserId() == null)
@@ -46,6 +50,8 @@ public class FolderService {
      */
     public void add(FolderVO vo) {
         checkCommon(vo);
+        List<Folder> currentUserFolderList = getUserFolderListByRedis(vo.getUserId(), false);
+        if (currentUserFolderList.size() >= 10) throw new BusinessException("操作失败：一个用户只能自定义10个文件夹");
         Folder domain = new Folder();
         vo.vo2Domain(domain);
         domain.setCreateTime(new Date());
@@ -53,20 +59,7 @@ public class FolderService {
         domain.setValidStatus(Code.STATUS_VALID);//有效
         domain.setSystemFolder(Code.STATUS_INVALID);
         folderMapper.insert(domain);
-    }
-
-    /**
-     * 检查参数并返回计划
-     * @param id
-     * @param status
-     * @return
-     */
-    public Folder checkAndReturnFolder(Integer id, Integer status, Integer userId) {
-        if (id == null) throw new BusinessException("请选择要操作的记录");
-        if (status == null) throw new BusinessException("状态参数有误");
-        Folder folder = folderMapper.selectByPrimaryKey(id);
-        if (folder == null) throw new BusinessException("参数有误");
-        return checkAuth(folder, userId);
+        getUserFolderListByRedis(vo.getUserId(), true); //更新缓存
     }
 
     /**
@@ -93,6 +86,7 @@ public class FolderService {
         checkAuth(folder, folderVO.getUserId());
         folder.setValidStatus(Code.STATUS_INVALID);
         folderMapper.updateByPrimaryKeySelective(folder);
+        getUserFolderListByRedis(folderVO.getUserId(), true); //更新缓存
     }
 
     /**
@@ -111,6 +105,7 @@ public class FolderService {
             folder.setValidStatus(Code.STATUS_INVALID);
             folderMapper.updateByPrimaryKeySelective(folder);
         }
+        getUserFolderListByRedis(folderVO.getUserId(), true); //更新缓存
     }
 
     /**
@@ -125,6 +120,7 @@ public class FolderService {
         vo.vo2Domain(domain);
         domain.setUpdateTime(new Date());
         folderMapper.updateByPrimaryKeySelective(domain);
+        getUserFolderListByRedis(vo.getUserId(), true); //更新缓存
     }
 
     /**
@@ -158,42 +154,74 @@ public class FolderService {
      */
     @Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
     public PageInfo pageQuery(FolderVO queryVo) {
-        FolderExample example = new FolderExample();
-        FolderExample.Criteria criteria = example.createCriteria();
-        if(queryVo.getUserId() != null) {
-            criteria.andUserIdEqualTo(queryVo.getUserId());
-        } else {
-            criteria.andUserIdEqualTo(Code.STATUS_INVALID);
-        }
-        criteria.andValidStatusEqualTo(Code.STATUS_VALID);
-        example.setOrderByClause("create_time desc");
-        PageHelper.startPage(queryVo.getPage(), queryVo.getPageSize());
-        List<Folder> list = folderMapper.selectByExample(example);
-        PageInfo pageInfo = new PageInfo(list);
-        List<FolderVO> voList = domainList2VoList(list);
+        List<Folder> systemFolderList = getSystemFolderListByRedis(false); //系统文件夹
+        List<Folder> userFolderList = getUserFolderListByRedis(queryVo.getUserId(), false); //用户文件夹
+        systemFolderList.addAll(userFolderList);
+        PageInfo pageInfo = new PageInfo(systemFolderList);
+        List<FolderVO> voList = domainList2VoList(systemFolderList);
         pageInfo.getList().clear();
         pageInfo.getList().addAll(voList);
         return pageInfo;
     }
 
     /**
-     * 系统默认文件夹
+     * 从缓存获取用户文件夹
+     * @param userId
+     * @param refresh
      * @return
      */
-    public List<Folder> getSystemFolderList() {
-        FolderExample example = new FolderExample();
-        FolderExample.Criteria criteria = example.createCriteria();
-        criteria.andValidStatusEqualTo(Code.STATUS_VALID);
-        criteria.andSystemFolderEqualTo(Code.STATUS_VALID);
-        example.setOrderByClause("create_time");
-        return folderMapper.selectByExample(example);
+    public List<Folder> getUserFolderListByRedis(Integer userId, boolean refresh) {
+        List<Folder> folderList = new ArrayList<>();
+        if (userId == null || userId == 0) return folderList;
+        String folderCacheKey = FolderService.class.getSimpleName() + "_" + userId;
+        String jsonStr = null;
+        if (!refresh) {
+            jsonStr = redisCacheManger.getRedisCacheInfo(folderCacheKey);
+        }
+        if (StringUtils.isNotBlank(jsonStr)) {
+            folderList = gson.fromJson(jsonStr, new TypeToken<List<Folder>>() {}.getType());
+        } else {
+            FolderExample example = new FolderExample();
+            FolderExample.Criteria criteria = example.createCriteria();
+            criteria.andValidStatusEqualTo(Code.STATUS_VALID);
+            criteria.andUserIdEqualTo(userId);
+            example.setOrderByClause("create_time");
+            folderList = folderMapper.selectByExample(example);
+            redisCacheManger.setRedisCacheInfo(folderCacheKey, RedisCacheManger.REDIS_CACHE_EXPIRE_WEEK, gson.toJson(folderList));
+        }
+        return folderList;
+    }
+
+    /**
+     * 从缓存获取系统文件夹
+     * @param refresh
+     * @return
+     */
+    public List<Folder> getSystemFolderListByRedis(boolean refresh) {
+        List<Folder> folderList = new ArrayList<>();
+        String folderCacheKey = FolderService.class.getSimpleName() + "_systemFolder";
+        String jsonStr = null;
+        if (!refresh) {
+            jsonStr = redisCacheManger.getRedisCacheInfo(folderCacheKey);
+        }
+        if (StringUtils.isNotBlank(jsonStr)) {
+            folderList = gson.fromJson(jsonStr, new TypeToken<List<Folder>>() {}.getType());
+        } else {
+            FolderExample example = new FolderExample();
+            FolderExample.Criteria criteria = example.createCriteria();
+            criteria.andValidStatusEqualTo(Code.STATUS_VALID);
+            criteria.andSystemFolderEqualTo(Code.STATUS_VALID);
+            criteria.andUserIdIsNull();
+            example.setOrderByClause("create_time");
+            folderList = folderMapper.selectByExample(example);
+            redisCacheManger.setRedisCacheInfo(folderCacheKey, RedisCacheManger.REDIS_CACHE_EXPIRE_WEEK, gson.toJson(folderList));
+        }
+        return folderList;
     }
 
     private List<FolderVO> domainList2VoList(List<Folder> domainList) {
         List<FolderVO> voList = new ArrayList<>(domainList.size());
-        List<Folder> systemFolderList = getSystemFolderList(); //先加载系统默认文件夹
-        systemFolderList.addAll(domainList);
-        for (Folder domain : systemFolderList) {
+        for (Folder domain : domainList) {
             FolderVO vo = new FolderVO();
             vo.domain2Vo(domain);
             voList.add(vo);

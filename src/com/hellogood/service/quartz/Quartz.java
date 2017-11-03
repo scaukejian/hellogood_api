@@ -1,5 +1,6 @@
 package com.hellogood.service.quartz;
 
+import com.hellogood.constant.Code;
 import com.hellogood.service.NoteService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +28,7 @@ public class Quartz {
 	@Scheduled(cron="0 0 0 * * ?")
 	public void initFinishByDay() {
 		logger.info("日计划的完成状态设置为未完成开始执行...");
-		noteService.initFinish("日");
+		noteService.initFinish(Code.FOLDER_DAY_ID);
 		logger.info("日计划的完成状态设置为未完成执行完毕...");
 	}
 
@@ -38,7 +39,7 @@ public class Quartz {
     @Scheduled(cron = "0 0 0 ? * SUN")
     public void initFinishByWeek() {
 		logger.info("周计划的完成状态设置为未完成开始执行...");
-		noteService.initFinish("周");
+		noteService.initFinish(Code.FOLDER_WEEK_ID);
 		logger.info("周计划的完成状态设置为未完成执行完毕...");
 	}
 
@@ -49,7 +50,7 @@ public class Quartz {
     @Scheduled(cron = "0 0 0 1 * ?")
     public void initFinishByMonth() {
 		logger.info("月计划的完成状态设置为未完成开始执行...");
-		noteService.initFinish("月");
+		noteService.initFinish(Code.FOLDER_MONTH_ID);
 		logger.info("月计划的完成状态设置为未完成执行完毕...");
 	}
 
@@ -60,7 +61,7 @@ public class Quartz {
     @Scheduled(cron = "0 0 0 1 3,6,9,12 ?")
     public void initFinishBySeason() {
 		logger.info("季计划的完成状态设置为未完成开始执行...");
-		noteService.initFinish("季");
+		noteService.initFinish(Code.FOLDER_SEASON_ID);
 		logger.info("季计划的完成状态设置为未完成执行完毕...");
 	}
 
@@ -71,7 +72,7 @@ public class Quartz {
 	@Scheduled(cron = "0 0 0 1 1 ?")
 	public void initFinishByYear() {
 		logger.info("年计划的完成状态设置为未完成开始执行...");
-		noteService.initFinish("年");
+		noteService.initFinish(Code.FOLDER_YEAR_ID_ID);
 		logger.info("年计划的完成状态设置为未完成执行完毕...");
 	}
 
@@ -82,7 +83,7 @@ public class Quartz {
 	@Scheduled(cron="0 0 19 * * ?")
 	public void noticeUserFinishPlanByDay() {
 		logger.info("提醒用户每日计划未完成的记录条数...");
-		noteService.noticeUserFinishPlan("日");
+		noteService.noticeUserFinishPlan(Code.FOLDER_DAY_ID);
 		logger.info("提醒用户每日计划未完成的记录条数执行完毕...");
 	}
 
@@ -93,7 +94,7 @@ public class Quartz {
 	@Scheduled(cron = "0 0 19 ? * FRI")
 	public void noticeUserFinishPlanByWeek() {
 		logger.info("提醒用户每周计划未完成的记录条数...");
-		noteService.noticeUserFinishPlan("周");
+		noteService.noticeUserFinishPlan(Code.FOLDER_WEEK_ID);
 		logger.info("提醒用户每周计划未完成的记录条数执行完毕...");
 	}
 
@@ -104,7 +105,7 @@ public class Quartz {
 	@Scheduled(cron = "0 0 19 25 * ?")
 	public void noticeUserFinishPlanByMonth() {
 		logger.info("提醒用户每月计划未完成的记录条数...");
-		noteService.noticeUserFinishPlan("月");
+		noteService.noticeUserFinishPlan(Code.FOLDER_MONTH_ID);
 		logger.info("提醒用户每月计划未完成的记录条数执行完毕...");
 	}
 
@@ -115,7 +116,7 @@ public class Quartz {
 	@Scheduled(cron = "0 0 19 25 2,5,8,11 ?")
 	public void noticeUserFinishPlanBySeason() {
 		logger.info("提醒用户每季计划未完成的记录条数...");
-		noteService.noticeUserFinishPlan("季");
+		noteService.noticeUserFinishPlan(Code.FOLDER_SEASON_ID);
 		logger.info("提醒用户每季计划未完成的记录条数执行完毕...");
 	}
 	/**
@@ -125,7 +126,7 @@ public class Quartz {
 	@Scheduled(cron = "0 0 19 1 12 ?")
 	public void noticeUserFinishPlanByYear() {
 		logger.info("提醒用户每年计划未完成的记录条数...");
-		noteService.noticeUserFinishPlan("年");
+		noteService.noticeUserFinishPlan(Code.FOLDER_YEAR_ID_ID);
 		logger.info("提醒用户每年计划未完成的记录条数执行完毕...");
 	}
 }

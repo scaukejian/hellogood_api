@@ -28,9 +28,14 @@ public class Code {
 	 */
 	public static final String DATA_TYPE_AREA = "area";
 	/**
-	 * 计划分类
+	 * 文件夹id(从数据库获得)
 	 */
-	public static final List<String> typeList = Arrays.asList("日","周","月","季","年");
+	public static final Integer FOLDER_DAY_ID = 1;
+	public static final Integer FOLDER_WEEK_ID = 2;
+	public static final Integer FOLDER_MONTH_ID = 3;
+	public static final Integer FOLDER_SEASON_ID = 4;
+	public static final Integer FOLDER_YEAR_ID_ID = 5;
+
 	/**
 	 * 个推定义常量, appId、appKey、masterSecret
 	 */

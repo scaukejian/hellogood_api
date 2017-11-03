@@ -8,10 +8,7 @@ import com.gexin.rp.sdk.template.NotificationTemplate;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.hellogood.constant.Code;
-import com.hellogood.domain.BootUp;
-import com.hellogood.domain.Note;
-import com.hellogood.domain.NoteExample;
-import com.hellogood.domain.User;
+import com.hellogood.domain.*;
 import com.hellogood.exception.BusinessException;
 import com.hellogood.http.task.NoticeExecutor;
 import com.hellogood.http.vo.NoteVO;
@@ -44,18 +41,18 @@ public class NoteService {
     private UserService userService;
     @Autowired
     private BootUpService bootUpService;
+    @Autowired
+    private FolderService folderService;
 
     private Logger logger = LoggerFactory.getLogger(NoteService.class);
 
     private void checkCommon(NoteVO vo){
         if (StringUtils.isBlank(vo.getPhoneUniqueCode()))
             throw new BusinessException("请先授权APP获取系统权限");
-        if (StringUtils.isBlank(vo.getType()))
-            throw new BusinessException("操作失败: 请选择计划类型");
-
-        if (!Code.typeList.contains(vo.getType()))
-            throw new BusinessException("操作失败: 计划类型只能为日、周、月、季、年");
-
+        if (vo.getFolderId() == null || vo.getFolderId() == 0)
+            throw new BusinessException("操作失败: 请选择所属文件夹");
+        Folder folder = folderService.getFolder(vo.getFolderId());
+        if (folder == null) throw new BusinessException("操作失败: 文件夹id有误");
         if (StringUtils.isBlank(vo.getContent()))
             throw new BusinessException("操作失败: 计划内容不能为空");
         if (vo.getContent().length() > 5000)
@@ -138,18 +135,20 @@ public class NoteService {
         noteMapper.updateByPrimaryKeySelective(note);
     }
 
-    public List<Note> getNoteByType(String type) {
+    public List<Note> getNoteByFolderId(Integer folderId) {
         NoteExample example = new NoteExample();
         NoteExample.Criteria criteria = example.createCriteria();
-        criteria.andTypeEqualTo(type);
+        criteria.andFolderIdEqualTo(folderId);
         return noteMapper.selectByExample(example);
     }
 
     /**
      * 初始化
      */
-    public void initFinish(String type) {
-        List<Note> noteList = getNoteByType(type);
+    public void initFinish(Integer folderId) {
+        Folder folder = folderService.getFolder(folderId);
+        if (folder == null) return;
+        List<Note> noteList = getNoteByFolderId(folderId);
         if (noteList.isEmpty()) return;
         for (Note note : noteList) {
             note.setFinish(Code.STATUS_INVALID);
@@ -158,10 +157,13 @@ public class NoteService {
     }
 
     /**
-     * 提醒用户type类型计划未完成的记录条数
+     * 提醒用户某文件夹id未完成的计划数
      */
-    public void noticeUserFinishPlan(String type) {
-        List<NoteVO> noteList = noteMapper.getUserIdAndCountMap(type);
+    public void noticeUserFinishPlan(Integer folderId) {
+        Folder folder = folderService.getFolder(folderId);
+        if (folder == null) return;
+        String folderName = folder.getName();
+        List<NoteVO> noteList = noteMapper.getUserIdAndCountMap(folderId);
         if (!noteList.isEmpty()) {
             for (NoteVO vo : noteList) {
                 Integer userId = vo.getUserId();
@@ -172,10 +174,10 @@ public class NoteService {
                 if (StringUtils.isBlank(clientId)) continue;
                 User user = userService.getUser(userId);
                 if (user.getUserName() == null) user.setUserName("");
-                NoticeExecutor.getExecutor().execute(() -> pushMessage(user.getUserName(), userIdCount, clientId, type));
+                NoticeExecutor.getExecutor().execute(() -> pushMessage(user.getUserName(), userIdCount, clientId, folderName));
             }
         }
-        List<NoteVO> noteList_uniqueCode = noteMapper.getPhoneUniqueCodeAndCountMap(type);
+        List<NoteVO> noteList_uniqueCode = noteMapper.getPhoneUniqueCodeAndCountMap(folderId);
         if (!noteList_uniqueCode.isEmpty()) {
             for (NoteVO vo : noteList_uniqueCode) {
                 String phoneUniqueCode = vo.getPhoneUniqueCode();
@@ -184,7 +186,7 @@ public class NoteService {
                 if (bootUp == null) continue;
                 String clientId = bootUp.getClientId();
                 if (StringUtils.isBlank(clientId)) continue;
-                NoticeExecutor.getExecutor().execute(() -> pushMessage("", phoneUniqueCodeCount, clientId, type));
+                NoticeExecutor.getExecutor().execute(() -> pushMessage("", phoneUniqueCodeCount, clientId, folderName));
             }
         }
 
@@ -196,11 +198,11 @@ public class NoteService {
      * @param count 未完成计划数
      * @param clientId 个推CID终端标识
      */
-    public void pushMessage(String name, Integer count, String clientId, String type) {
+    public void pushMessage(String name, Integer count, String clientId, String folderName) {
         IGtPush push = new IGtPush(Code.APPKEY, Code.MASTER_SECRET);
         String transmissionContent = "【渣渣计划】亲爱的" + name + ",";
         String text = transmissionContent;
-        String title = "您还有" + count + "条"+type+"计划未完成哟~";
+        String title = "您还有" + count + "条"+folderName+"计划未完成哟~";
         // 点击通知打开应用模板
         NotificationTemplate template = AppPush.notificationTemplate(Code.APPID, Code.APPKEY, transmissionContent,
                 text, title, Code.LOGO, Code.LOGO_URL);
@@ -317,14 +319,15 @@ public class NoteService {
             throw new BusinessException("请先授权APP获取系统权限");
         if (queryVo.getDisplay() == null)
             throw new BusinessException("展示状态不能为空");
-        boolean needType = true;//是否需要传递类型参数，回收站，收藏夹，已完成的都不需要传递类型
-        if (queryVo.getDisplay() == Code.STATUS_INVALID) needType = false;
-        if (queryVo.getTop() == Code.STATUS_VALID) needType = false;
-        if (queryVo.getFinish() == Code.STATUS_VALID) needType = false;
-        if (StringUtils.isBlank(queryVo.getType()) && needType)
-            throw new BusinessException("计划类型不能为空");
-        if (!Code.typeList.contains(queryVo.getType()) && needType)
-            throw new BusinessException("操作失败: 计划类型只能为日、周、月、季、年");
+        boolean needFolder = true;//是否需要传递文件夹参数，回收站，收藏夹，已完成的都不需要传递文件夹id
+        if (queryVo.getDisplay() == Code.STATUS_INVALID) needFolder = false;
+        if (queryVo.getTop() == Code.STATUS_VALID) needFolder = false;
+        if (queryVo.getFinish() == Code.STATUS_VALID) needFolder = false;
+        if (queryVo.getFolderId() == null && needFolder)
+            throw new BusinessException("文件夹id不能为空");
+        Folder folder = folderService.getFolder(queryVo.getFolderId());
+        if (folder == null && needFolder)
+            throw new BusinessException("操作失败: 文件夹不能为空");
         NoteExample example = new NoteExample();
         NoteExample.Criteria criteria = example.createCriteria();
         if(queryVo.getUserId() != null && queryVo.getUserId() != 0) {
@@ -332,10 +335,10 @@ public class NoteService {
         } else {
             criteria.andPhoneUniqueCodeLike(MessageFormat.format("%{0}%", queryVo.getPhoneUniqueCode()));
         }
+        if (queryVo.getFolderId() != null) criteria.andFolderIdEqualTo(queryVo.getFolderId());
         if (queryVo.getTop() != null) criteria.andTopEqualTo(queryVo.getTop());
         if (queryVo.getFinish() != null) criteria.andFinishEqualTo(queryVo.getFinish());
         criteria.andDisplayEqualTo(queryVo.getDisplay());
-        if (StringUtils.isNotBlank(queryVo.getType())) criteria.andTypeEqualTo(queryVo.getType());
         if (StringUtils.isNotBlank(queryVo.getContent())) criteria.andContentLike(MessageFormat.format("%{0}%", queryVo.getContent()));
         criteria.andValidStatusEqualTo(Code.STATUS_VALID);
         example.setOrderByClause(" top desc, update_time desc");
@@ -367,6 +370,10 @@ public class NoteService {
                 vo.setUserName(user.getUserName());
                 vo.setPhone(user.getPhone());
             }
+        }
+        if (vo.getFolderId() != null) {
+            Folder folder = folderService.getFolder(vo.getFolderId());
+            vo.setFolderName(folder.getName());
         }
     }
 

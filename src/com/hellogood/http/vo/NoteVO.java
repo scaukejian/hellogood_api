@@ -56,6 +56,26 @@ public class NoteVO {
 
     private Integer phoneUniqueCodeCount;
 
+    private Integer folderId;
+
+    private String folderName;
+
+    public String getFolderName() {
+        return folderName;
+    }
+
+    public void setFolderName(String folderName) {
+        this.folderName = folderName;
+    }
+
+    public Integer getFolderId() {
+        return folderId;
+    }
+
+    public void setFolderId(Integer folderId) {
+        this.folderId = folderId;
+    }
+
     public Integer getUserIdCount() {
         return userIdCount;
     }
@@ -272,6 +292,12 @@ public class NoteVO {
                 ", deadline=" + deadline +
                 ", page=" + page +
                 ", pageSize=" + pageSize +
+                ", finish=" + finish +
+                ", ids='" + ids + '\'' +
+                ", userIdCount=" + userIdCount +
+                ", phoneUniqueCodeCount=" + phoneUniqueCodeCount +
+                ", folderId=" + folderId +
+                ", folderName='" + folderName + '\'' +
                 '}';
     }
 }

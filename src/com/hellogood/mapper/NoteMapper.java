@@ -29,16 +29,16 @@ public interface NoteMapper {
     int updateByPrimaryKey(Note record);
 
     /**
-     * 查找用户id未完成的type类型计划数
-     * @param type
+     * 查找用户某文件夹id未完成的计划数
+     * @param folderId
      * @return
      */
-    List<NoteVO> getUserIdAndCountMap(@Param("type") String type);
+    List<NoteVO> getUserIdAndCountMap(@Param("folderId") Integer folderId);
 
     /**
-     * 查找设备未完成的type类型计划数
-     * @param type
+     * 查找设备某文件夹未完成的计划数
+     * @param folderId
      * @return
      */
-    List<NoteVO> getPhoneUniqueCodeAndCountMap(@Param("type") String type);
+    List<NoteVO> getPhoneUniqueCodeAndCountMap(@Param("folderId") Integer folderId);
 }
