@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -34,8 +35,8 @@ public class FolderController extends BaseController {
 	public Map<String, Object> getFolderList(@RequestBody FolderVO folderVO) {
 		logger.info(folderVO.toString());
 		Map<String, Object> map = new HashMap<>();
-		PageInfo pageInfo = folderService.pageQuery(folderVO);
-		map.put(DATA_LIST, DateUtil.list2MapDateFormat(pageInfo.getList()));
+		List<FolderVO> folderVOList = folderService.getFolderList(folderVO);
+		map.put(DATA_LIST, DateUtil.list2MapDateFormat(folderVOList));
 		map.put(STATUS, STATUS_SUCCESS);
 		return map;
 	}

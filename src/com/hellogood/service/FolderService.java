@@ -1,6 +1,5 @@
 package com.hellogood.service;
 
-import com.github.pagehelper.PageInfo;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.hellogood.constant.Code;
@@ -153,15 +152,11 @@ public class FolderService {
      * @return
      */
     @Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
-    public PageInfo pageQuery(FolderVO queryVo) {
+    public List<FolderVO> getFolderList(FolderVO queryVo) {
         List<Folder> systemFolderList = getSystemFolderListByRedis(false); //系统文件夹
         List<Folder> userFolderList = getUserFolderListByRedis(queryVo.getUserId(), false); //用户文件夹
         systemFolderList.addAll(userFolderList);
-        PageInfo pageInfo = new PageInfo(systemFolderList);
-        List<FolderVO> voList = domainList2VoList(systemFolderList);
-        pageInfo.getList().clear();
-        pageInfo.getList().addAll(voList);
-        return pageInfo;
+        return domainList2VoList(systemFolderList);
     }
 
     /**
