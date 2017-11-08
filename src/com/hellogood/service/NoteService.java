@@ -200,9 +200,9 @@ public class NoteService {
      */
     public void pushMessage(String name, Integer count, String clientId, String folderName) {
         IGtPush push = new IGtPush(Code.APPKEY, Code.MASTER_SECRET);
-        String transmissionContent = "【渣渣计划】亲爱的" + name + ",";
+        String transmissionContent = "【渣渣计划】亲爱的" + name;
         String text = transmissionContent;
-        String title = "您还有" + count + "条"+folderName+"计划未完成哟~";
+        String title = "您还有" + count + "条"+folderName+"未完成哟~";
         // 点击通知打开应用模板
         NotificationTemplate template = AppPush.notificationTemplate(Code.APPID, Code.APPKEY, transmissionContent,
                 text, title, Code.LOGO, Code.LOGO_URL);
