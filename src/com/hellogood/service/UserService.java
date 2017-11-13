@@ -1,13 +1,17 @@
 package com.hellogood.service;
 
+import com.hellogood.constant.Code;
 import com.hellogood.domain.*;
 import com.hellogood.exception.BusinessException;
 import com.hellogood.exception.UserRegisterOperateException;
 import com.hellogood.http.vo.UserVO;
 import com.hellogood.utils.DateUtil;
+import com.hellogood.utils.EmojiUtil;
 import com.hellogood.utils.RegexUtils;
 import com.hellogood.utils.StringUtil;
 import com.hellogood.mapper.UserMapper;
+import org.apache.commons.codec.binary.*;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,6 +35,10 @@ public class UserService {
     private TokenService tokenService;
     @Autowired
     AreaService areaService;
+    @Autowired
+    LoginService loginService;
+    @Autowired
+    LoginRecordsService loginRecordsService;
 
     /**
      * 保存
@@ -78,9 +86,7 @@ public class UserService {
             throw new BusinessException("请输入生日日期");
         if (userVO.getAge() != null && !RegexUtils.isPositiveInteger(String.valueOf(userVO.getAge())))
             throw new BusinessException("年龄"+RegexUtils.POSITIVE_INTEGER_MSG);
-        if (StringUtils.isBlank(userVO.getWeixinName()))
-            throw new BusinessException("微信不能为空");
-        if (userVO.getWeixinName().length() > 50)
+        if (StringUtils.isNotBlank(userVO.getWeixinName()) && userVO.getWeixinName().length() > 50)
             throw new BusinessException("微信长度不能大于50个字符");
         if (userVO.getHeight() != null && !RegexUtils.isPositiveInteger(String.valueOf(userVO.getHeight())))
             throw new BusinessException("身高"+RegexUtils.POSITIVE_INTEGER_MSG);
@@ -160,4 +166,44 @@ public class UserService {
         return userDetail;
     }
 
+    /**
+     * 根据openId行级锁获取用户资料 SELECT * FROM User FOR UPDATE 的作用是在查询用户的时候防止修改或删除
+     * @param openId
+     * @return
+     */
+    public User getUserByOpenIdForUpdate(String openId){
+        List<User> list = userMapper.getUserByOpenIdForUpdate(openId);
+        if(list.isEmpty())
+            return null;
+        return list.get(0);
+    }
+
+    /**
+     * 小程序新增用户
+     * @param openId
+     * @param name
+     * @param imgUrl
+     * @return
+     */
+    public User insert(String openId, String name, String imgUrl) {
+        logger.info("openId="+openId + ",nickName=" + name + ", imgurl=" + imgUrl);
+        User user = new User();
+        user.setCreateTime(new Date());
+        user.setImgUrl(imgUrl);
+        user.setUserName(EmojiUtil.filterEmoji(name));
+        user.setOpenId(openId);
+        user.setValidStatus(Code.STATUS_VALID);
+        add(user);
+
+        //生成登录信息
+        Login login = new Login();
+        login.setUserId(user.getId());
+        login.setCreateTime(new Date());
+        login.setLastLogintime(new Date());
+        loginService.save(login);// 保存登录表
+
+        loginRecordsService.addMiniRecord(login.getId());
+
+        return user;
+    }
 }

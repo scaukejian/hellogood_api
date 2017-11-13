@@ -13,9 +13,7 @@ import com.hellogood.exception.BusinessException;
 import com.hellogood.http.task.NoticeExecutor;
 import com.hellogood.http.vo.NoteVO;
 import com.hellogood.mapper.NoteMapper;
-import com.hellogood.mapper.UserMapper;
 import com.hellogood.utils.AppPush;
-import com.hellogood.utils.StaticFileUtil;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +45,7 @@ public class NoteService {
     private Logger logger = LoggerFactory.getLogger(NoteService.class);
 
     private void checkCommon(NoteVO vo){
-        if (StringUtils.isBlank(vo.getPhoneUniqueCode()))
+        if (vo.getMini() == null && StringUtils.isBlank(vo.getPhoneUniqueCode()))
             throw new BusinessException("请先授权APP获取系统权限");
         if (vo.getFolderId() == null || vo.getFolderId() == 0)
             throw new BusinessException("操作失败: 请选择所属文件夹");
@@ -86,7 +84,6 @@ public class NoteService {
     public Note checkAndReturnNote(Integer id, Integer status, Integer userId, String phoneUniqueCode) {
         if (id == null) throw new BusinessException("请选择要操作的记录");
         if (status == null) throw new BusinessException("状态参数有误");
-        if (StringUtils.isBlank(phoneUniqueCode)) throw new BusinessException("获取设备唯一标识码失败");
         Note note = noteMapper.selectByPrimaryKey(id);
         if (note == null) throw new BusinessException("参数有误");
         return checkAuth(note, userId, phoneUniqueCode);
@@ -315,7 +312,7 @@ public class NoteService {
      */
     @Transactional(propagation = Propagation.NOT_SUPPORTED, readOnly = true)
     public PageInfo pageQuery(NoteVO queryVo) {
-        if(StringUtils.isBlank(queryVo.getPhoneUniqueCode()))
+        if(queryVo.getMini() == null && StringUtils.isBlank(queryVo.getPhoneUniqueCode()))
             throw new BusinessException("请先授权APP获取系统权限");
         if (queryVo.getDisplay() == null)
             throw new BusinessException("展示状态不能为空");
@@ -332,7 +329,7 @@ public class NoteService {
         NoteExample.Criteria criteria = example.createCriteria();
         if(queryVo.getUserId() != null && queryVo.getUserId() != 0) {
             criteria.andUserIdEqualTo(queryVo.getUserId());
-        } else {
+        } else if (StringUtils.isNotBlank(queryVo.getPhoneUniqueCode())){
             criteria.andPhoneUniqueCodeLike(MessageFormat.format("%{0}%", queryVo.getPhoneUniqueCode()));
         }
         if (queryVo.getFolderId() != null) criteria.andFolderIdEqualTo(queryVo.getFolderId());

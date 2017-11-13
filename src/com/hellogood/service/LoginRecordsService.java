@@ -53,4 +53,18 @@ public class LoginRecordsService {
         loginRecordsMapper.insert(records);
     }
     
+    /**
+     * 新增登录记录(小程序)
+     * @param loginId
+     */
+    public void addMiniRecord(Integer loginId){
+        if(loginId == null){
+            throw new BusinessException("登录用户ID不能为空");
+        }
+        LoginRecords records = new LoginRecords();
+        records.setLoginId(loginId);
+        records.setOperateTime(new Date());
+        loginRecordsMapper.insert(records);
+    }
+
 }

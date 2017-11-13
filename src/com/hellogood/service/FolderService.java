@@ -36,7 +36,7 @@ public class FolderService {
 
     private void checkCommon(FolderVO vo){
         if (vo.getUserId() == null)
-            throw new BusinessException("请先登录APP");
+            throw new BusinessException("请先登录");
         if (StringUtils.isBlank(vo.getName()))
             throw new BusinessException("操作失败: 文件夹名称不能为空");
         if (vo.getName().length() > 20)

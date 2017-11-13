@@ -29,6 +29,8 @@
     <result column="remark" property="remark" jdbcType="VARCHAR" />
     <result column="qq" property="qq" jdbcType="VARCHAR" />
     <result column="email" property="email" jdbcType="VARCHAR" />
+    <result column="open_id" property="openId" jdbcType="VARCHAR" />
+    <result column="img_url" property="imgUrl" jdbcType="VARCHAR" />
   </resultMap>
   <sql id="Example_Where_Clause" >
     <where >
@@ -92,8 +94,23 @@
     id, user_code, user_name, sex, age, height, weight, phone, weixin_name, degree, birthday, 
     constellation, marital_status, native_place, live_province, live_city, nationality, 
     school, company, job, characteristic_signature, create_time, update_time, valid_status, 
-    remark, qq, email
+    remark, qq, email, open_id, img_url
   </sql>
+
+  <!-- 根据openId行级锁获取用户资料-->
+  <select id="getUserByOpenIdForUpdate" parameterType="java.lang.String" resultMap="BaseResultMap">
+    <![CDATA[
+		SELECT
+			*
+		FROM
+			api_user
+		WHERE
+			open_id = #{0}
+		FOR UPDATE
+	]]>
+  </select>
+
+
   <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.hellogood.domain.UserExample" >
     select
     <if test="distinct" >
@@ -124,7 +141,7 @@
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="com.hellogood.domain.User" useGeneratedKeys="true" keyProperty="id" >
+  <insert id="insert" parameterType="com.hellogood.domain.User"  useGeneratedKeys="true" keyProperty="id" >
     insert into api_user (id, user_code, user_name, 
       sex, age, height, weight, 
       phone, weixin_name, degree, 
@@ -133,7 +150,8 @@
       nationality, school, company, 
       job, characteristic_signature, create_time, 
       update_time, valid_status, remark, 
-      qq, email)
+      qq, email, open_id, 
+      img_url)
     values (#{id,jdbcType=INTEGER}, #{userCode,jdbcType=VARCHAR}, #{userName,jdbcType=VARCHAR}, 
       #{sex,jdbcType=VARCHAR}, #{age,jdbcType=INTEGER}, #{height,jdbcType=INTEGER}, #{weight,jdbcType=INTEGER}, 
       #{phone,jdbcType=VARCHAR}, #{weixinName,jdbcType=VARCHAR}, #{degree,jdbcType=VARCHAR}, 
@@ -142,7 +160,8 @@
       #{nationality,jdbcType=VARCHAR}, #{school,jdbcType=VARCHAR}, #{company,jdbcType=VARCHAR}, 
       #{job,jdbcType=VARCHAR}, #{characteristicSignature,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
       #{updateTime,jdbcType=TIMESTAMP}, #{validStatus,jdbcType=INTEGER}, #{remark,jdbcType=VARCHAR}, 
-      #{qq,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR})
+      #{qq,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, #{openId,jdbcType=VARCHAR}, 
+      #{imgUrl,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.hellogood.domain.User" >
     insert into api_user
@@ -228,6 +247,12 @@
       <if test="email != null" >
         email,
       </if>
+      <if test="openId != null" >
+        open_id,
+      </if>
+      <if test="imgUrl != null" >
+        img_url,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides="," >
       <if test="id != null" >
@@ -310,6 +335,12 @@
       </if>
       <if test="email != null" >
         #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="openId != null" >
+        #{openId,jdbcType=VARCHAR},
+      </if>
+      <if test="imgUrl != null" >
+        #{imgUrl,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -397,6 +428,12 @@
       <if test="record.email != null" >
         email = #{record.email,jdbcType=VARCHAR},
       </if>
+      <if test="record.openId != null" >
+        open_id = #{record.openId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.imgUrl != null" >
+        img_url = #{record.imgUrl,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
@@ -430,7 +467,9 @@
       valid_status = #{record.validStatus,jdbcType=INTEGER},
       remark = #{record.remark,jdbcType=VARCHAR},
       qq = #{record.qq,jdbcType=VARCHAR},
-      email = #{record.email,jdbcType=VARCHAR}
+      email = #{record.email,jdbcType=VARCHAR},
+      open_id = #{record.openId,jdbcType=VARCHAR},
+      img_url = #{record.imgUrl,jdbcType=VARCHAR}
     <if test="_parameter != null" >
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -516,6 +555,12 @@
       <if test="email != null" >
         email = #{email,jdbcType=VARCHAR},
       </if>
+      <if test="openId != null" >
+        open_id = #{openId,jdbcType=VARCHAR},
+      </if>
+      <if test="imgUrl != null" >
+        img_url = #{imgUrl,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -546,7 +591,9 @@
       valid_status = #{validStatus,jdbcType=INTEGER},
       remark = #{remark,jdbcType=VARCHAR},
       qq = #{qq,jdbcType=VARCHAR},
-      email = #{email,jdbcType=VARCHAR}
+      email = #{email,jdbcType=VARCHAR},
+      open_id = #{openId,jdbcType=VARCHAR},
+      img_url = #{imgUrl,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
 </mapper>

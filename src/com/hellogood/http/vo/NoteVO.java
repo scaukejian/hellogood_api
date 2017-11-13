@@ -60,6 +60,16 @@ public class NoteVO {
 
     private String folderName;
 
+    private Integer mini;
+
+    public Integer getMini() {
+        return mini;
+    }
+
+    public void setMini(Integer mini) {
+        this.mini = mini;
+    }
+
     public String getFolderName() {
         return folderName;
     }
