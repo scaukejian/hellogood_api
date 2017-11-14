@@ -58,12 +58,12 @@ public class Quartz {
 	 * 每季计划的完成状态设置为未完成
      * 每年3月，6月，9月，12月1号凌晨0点执行一次 cron = "0 0 0 1 3,6,9,12 ?"
      */
-    @Scheduled(cron = "0 0 0 1 3,6,9,12 ?")
+    /*@Scheduled(cron = "0 0 0 1 3,6,9,12 ?")
     public void initFinishBySeason() {
 		logger.info("季计划的完成状态设置为未完成开始执行...");
 		noteService.initFinish(Code.FOLDER_SEASON_ID);
 		logger.info("季计划的完成状态设置为未完成执行完毕...");
-	}
+	}*/
 
 	/**
 	 * 每年计划的完成状态设置为未完成
@@ -113,12 +113,12 @@ public class Quartz {
 	 *  提醒用户每季计划未完成的记录条数
 	 *  2,5,8,11月25号晚上19(第三位数)点执行一次
 	 */
-	@Scheduled(cron = "0 0 19 25 2,5,8,11 ?")
+	/*@Scheduled(cron = "0 0 19 25 2,5,8,11 ?")
 	public void noticeUserFinishPlanBySeason() {
 		logger.info("提醒用户每季计划未完成的记录条数...");
 		noteService.noticeUserFinishPlan(Code.FOLDER_SEASON_ID);
 		logger.info("提醒用户每季计划未完成的记录条数执行完毕...");
-	}
+	}*/
 	/**
 	 *  提醒用户每年计划未完成的记录条数
 	 *  12月1号晚上19(第三位数)点执行一次
