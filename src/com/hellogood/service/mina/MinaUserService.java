@@ -7,6 +7,7 @@ import com.hellogood.domain.User;
 import com.hellogood.exception.BusinessException;
 import com.hellogood.http.vo.MinaUserVO;
 import com.hellogood.http.vo.RequestTemplateVO;
+import com.hellogood.http.vo.UserVO;
 import com.hellogood.service.*;
 import com.hellogood.service.redis.RedisCacheManger;
 import com.hellogood.utils.AesCbcUtil;
@@ -18,6 +19,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * 小程序Service
@@ -115,7 +118,7 @@ public class MinaUserService {
 	 * @return
 	 */
 	public JSONObject requestOpenIdAndSessionKey(String code){
-		
+
 	    String params = "appid=" + wxspAppid + "&secret=" + wxspSecret + "&js_code=" + code + "&grant_type=" + grant_type;
         //发送请求
         String sr = HttpRequest.sendGet("https://api.weixin.qq.com/sns/jscode2session", params);
@@ -123,10 +126,10 @@ public class MinaUserService {
         JSONObject json = new JSONObject(sr);
         if(json.get("session_key") == null)
         	throw new BusinessException("通信出了点小问题");
-        
+
         return json;
 	}
-	
+
 	/**
 	 * 基础验证
 	 * @param minaUserVO
@@ -139,7 +142,7 @@ public class MinaUserService {
 		   throw new BusinessException("登录凭证不能为空");
 		}
 	}
-	
+
 	/**
 	 * @param vo
 	 */
@@ -151,9 +154,9 @@ public class MinaUserService {
         //解析相应内容（转换成json对象）
         JSONObject returnJson = new JSONObject(sr);
         logger.info(returnJson.toString());
-		
+
 	}
-	
+
 	 /**
 	 * 按类型缓存
 	 * @refresh 是否刷新缓存,如果第一页，则立马刷新
@@ -171,9 +174,9 @@ public class MinaUserService {
 		}
 		return jsonStr;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @return
 	 */
 	private String getAccessTokenRequest() {

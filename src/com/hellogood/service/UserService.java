@@ -206,4 +206,41 @@ public class UserService {
 
         return user;
     }
+
+    /**
+     * 获取返回的userVO
+     * @param user
+     * @return
+     */
+    private UserVO getReturnUserVO(User user){
+        UserVO vo = new UserVO();
+        vo.domain2Vo(user);
+        return vo;
+    }
+    /**
+     * 获取我的资料
+     * @param openId
+     * @return
+     */
+    public UserVO getMyUserInfo(String openId) {
+        if(StringUtils.isBlank(openId))
+            throw new BusinessException("获取资料失败");
+        User user = this.getUserByOpenId(openId);
+        if(user == null)
+            throw new BusinessException("获取资料失败");
+        return this.getReturnUserVO(user);
+    }
+    /**
+     * 根据openId 获取用户
+     * @param openId
+     * @return
+     */
+    public User getUserByOpenId(String openId){
+        UserExample example = new UserExample();
+        example.createCriteria().andOpenIdEqualTo(openId).andValidStatusEqualTo(Code.STATUS_VALID);
+        List<User> list = userMapper.selectByExample(example);
+        if(list.isEmpty())
+            return null;
+        return list.get(0);
+    }
 }
