@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * FolderService
@@ -51,6 +52,9 @@ public class FolderService {
         checkCommon(vo);
         List<Folder> currentUserFolderList = getUserFolderListByRedis(vo.getUserId(), false);
         if (currentUserFolderList.size() >= 10) throw new BusinessException("操作失败：一个用户只能自定义10个文件夹");
+        List<String> folderNameList = new ArrayList<>();
+        folderNameList = currentUserFolderList.stream().map(domain-> domain.getName()).collect(Collectors.toList());
+        if (!folderNameList.isEmpty() && folderNameList.contains(vo.getName())) throw new BusinessException("文件夹名称不能重复");
         Folder domain = new Folder();
         vo.vo2Domain(domain);
         domain.setCreateTime(new Date());
@@ -115,6 +119,12 @@ public class FolderService {
         checkCommon(vo);
         Folder folder = getFolder(vo.getId());
         checkAuth(folder, vo.getUserId());
+        if (!StringUtils.equals(folder.getName(), vo.getName())) {
+            List<Folder> currentUserFolderList = getUserFolderListByRedis(vo.getUserId(), false);
+            List<String> folderNameList = new ArrayList<>();
+            folderNameList = currentUserFolderList.stream().map(domain-> domain.getName()).collect(Collectors.toList());
+            if (!folderNameList.isEmpty() && folderNameList.contains(vo.getName())) throw new BusinessException("文件夹名称不能重复");
+        }
         Folder domain = new Folder();
         vo.vo2Domain(domain);
         domain.setUpdateTime(new Date());
