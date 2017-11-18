@@ -47,6 +47,7 @@ public class BaseController {
 	public static final String STATUS_ERROR = "error";
 	public static final String MESSAGE_CODE = "code";
 	public static final String MESSAGE_LABEL = "messageLabel";
+	public static final String TOTAL = "total";
 
 	@ResponseBody
 	@ExceptionHandler(RuntimeException.class)

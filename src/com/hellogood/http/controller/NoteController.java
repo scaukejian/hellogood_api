@@ -34,6 +34,7 @@ public class NoteController extends BaseController {
 		Map<String, Object> map = new HashMap<>();
 		PageInfo pageInfo = noteService.pageQuery(noteVO);
 		map.put(DATA_LIST, DateUtil.list2MapDateFormat(pageInfo.getList()));
+		map.put(TOTAL, pageInfo.getTotal());
 		map.put(STATUS, STATUS_SUCCESS);
 		return map;
 	}

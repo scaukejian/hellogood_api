@@ -1,5 +1,6 @@
 package com.hellogood.http.controller.mina;
 
+import com.github.pagehelper.PageInfo;
 import com.hellogood.constant.Code;
 import com.hellogood.domain.User;
 import com.hellogood.exception.BusinessException;
@@ -69,7 +70,7 @@ public class MinaUserController extends BaseController {
      */
     @ResponseBody
     @RequestMapping(value = "/isExist", method = RequestMethod.POST)
-    public Map<String, Object> isExist(@RequestBody MinaUserVO userVO, HttpServletRequest request) {
+    public Map<String, Object> isExist(@RequestBody MinaUserVO userVO) {
         Map<String, Object> map = new HashMap<String, Object>();
         MinaUserVO minaUserVO = minaUserService.getMinaUserData(userVO);
         map.put(DATA, minaUserVO);
@@ -80,6 +81,8 @@ public class MinaUserController extends BaseController {
         folderNameList = folderVOList.stream().map(domain -> domain.getName()).collect(Collectors.toList());
         map.put("folderList", folderVOList);
         map.put("folderNameList", folderNameList);
+        if (folderVOList.isEmpty()) throw new BusinessException("文件夹列表为空");
+        map.put("firstFolderId", folderVOList.get(0).getId());
 
         DateFormat dateFormat = new SimpleDateFormat("yyyy年MM月dd日");
         Date now = new Date();
@@ -104,7 +107,9 @@ public class MinaUserController extends BaseController {
         noteVO.setUserId(minaUserVO.getUserId());
         noteVO.setFolderId(folderVOList.get(0).getId());
         noteVO.setMini(Code.STATUS_VALID);
-        map.put("noteList", DateUtil.list2MapDateFormat(noteService.pageQuery(noteVO).getList()));
+		PageInfo pageInfo = noteService.pageQuery(noteVO);
+		map.put("noteList", DateUtil.list2MapDateFormat(pageInfo.getList()));
+		map.put(TOTAL, pageInfo.getTotal());
         map.put(STATUS, STATUS_SUCCESS);
         return map;
     }
