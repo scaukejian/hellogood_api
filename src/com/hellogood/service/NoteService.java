@@ -332,7 +332,6 @@ public class NoteService {
         } else if (StringUtils.isNotBlank(queryVo.getPhoneUniqueCode())){
             criteria.andPhoneUniqueCodeLike(MessageFormat.format("%{0}%", queryVo.getPhoneUniqueCode()));
         }
-
         if (queryVo.getFolderId() != null) criteria.andFolderIdEqualTo(queryVo.getFolderId());
         if (queryVo.getTop() != null) criteria.andTopEqualTo(queryVo.getTop());
         if (queryVo.getFinish() != null) criteria.andFinishEqualTo(queryVo.getFinish());

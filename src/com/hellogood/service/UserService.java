@@ -1,17 +1,17 @@
 package com.hellogood.service;
 
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.EncodeHintType;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.common.BitMatrix;
 import com.hellogood.constant.Code;
 import com.hellogood.domain.*;
 import com.hellogood.exception.BusinessException;
 import com.hellogood.exception.UserRegisterOperateException;
+import com.hellogood.http.vo.MinaUserVO;
 import com.hellogood.http.vo.UserVO;
-import com.hellogood.utils.DateUtil;
-import com.hellogood.utils.EmojiUtil;
-import com.hellogood.utils.RegexUtils;
-import com.hellogood.utils.StringUtil;
+import com.hellogood.utils.*;
 import com.hellogood.mapper.UserMapper;
-import org.apache.commons.codec.binary.*;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.util.*;
 
 /**
@@ -40,6 +41,7 @@ public class UserService {
     @Autowired
     LoginRecordsService loginRecordsService;
 
+    public static String STOREPATH = StaticFileUtil.getProperty("fileSystem", "storagePath");
     /**
      * 保存
      * @param user
@@ -70,8 +72,23 @@ public class UserService {
         this.update(user);
     }
 
+    /**
+     * 保存小程序用户
+     * @param userVO
+     */
+    public MinaUserVO saveMinaUser(UserVO userVO) {
+        checkUserVO(userVO);
+        User user = new User();
+        userVO.vo2Domain(user);
+        this.update(user);
+        user = userMapper.selectByPrimaryKey(user.getId());
+        MinaUserVO minaUserVO = new MinaUserVO();
+        minaUserVO.domain2Vo(user);
+        minaUserVO.setUserId(user.getId());
+        return minaUserVO;
+    }
+
     private void checkUserVO(UserVO userVO) {
-        tokenService.checkUserToken(userVO.getToken(), userVO.getId());
         if (userVO.getId() == null)
             throw new BusinessException("用户id不能为空");
         if (StringUtils.isBlank(userVO.getUserName()))
@@ -108,6 +125,11 @@ public class UserService {
             throw new BusinessException("操作失败: QQ长度不能大于20个字符");
         if (StringUtils.isNotBlank(userVO.getEmail()) && userVO.getEmail().length() > 50)
             throw new BusinessException("操作失败: Email长度不能大于50个字符");
+        User user = userMapper.selectByPrimaryKey(userVO.getId());
+        if (!StringUtils.equals(user.getPhone(), userVO.getPhone())) {
+            User userTemp = getUserByPhone(userVO.getPhone());
+            if (userTemp != null)  throw new BusinessException("操作失败: 该号码已经被绑定其他的小程序，请更换其他号码");
+        }
     }
 
     /**
@@ -242,5 +264,59 @@ public class UserService {
         if(list.isEmpty())
             return null;
         return list.get(0);
+    }
+    /**
+     * 获取我的二维码
+     * @param openId
+     * @return
+     */
+    public String getQRCodeUrl(String openId) {
+        if(StringUtils.isBlank(openId))
+            throw new BusinessException("获取二维码失败");
+        User user = this.getUserByOpenId(openId);
+        if(user == null)
+            throw new BusinessException("获取二维码失败");
+        return getQRCodeUrl(user);
+    }
+
+    /**
+     * 生成二维码
+     * @author kejian
+     */
+    public String getQRCodeUrl(User user){
+        if (user == null || user.getId() == null || StringUtils.isBlank(user.getPhone())) return null;
+        String fileName = "qrcode_" + user.getId() + ".jpg";
+        File localFile = new File(STOREPATH +"qrcode/"+ fileName);
+        if (!localFile.exists()) {
+            String name = user.getUserName(); // 姓名
+            String telephone = user.getPhone(); // 电话
+            String job = StringUtils.isNotBlank(user.getJob()) ? user.getJob() : ""; // 职位
+            String company = StringUtils.isNotBlank(user.getCompany()) ? user.getCompany() : ""; // 公司
+            String email = StringUtils.isNotBlank(user.getEmail()) ? user.getEmail() : ""; // 邮箱
+            String characteristicSignature = StringUtils.isNotBlank(user.getCharacteristicSignature()) ? user.getCharacteristicSignature() : ""; // 简介
+
+            StringBuffer sb = new StringBuffer();
+            sb.append("BEGIN:VCARD\n");
+            sb.append("N:").append(name).append("\n");
+            sb.append("TITLE:").append(job).append("\n");
+            sb.append("TEL:").append(telephone).append("\n");
+            sb.append("ORG:").append(company).append("\n");
+            sb.append("EMAIL:").append(email).append("\n");
+            sb.append("NOTE:").append(characteristicSignature).append("\n");
+            sb.append("END:VCARD");
+            String content = sb.toString();
+            MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
+            Map hints = new HashMap();
+            hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
+            try {
+                // 文件命名 生成文件夹名+UUID+后缀名
+                BitMatrix bitMatrix = multiFormatWriter.encode(content, BarcodeFormat.QR_CODE, 400, 400, hints);
+                MatrixToImageWriter.writeToFile(bitMatrix, "jpg", localFile);
+                logger.info("生成名片二维码完成！");
+            } catch (Exception e) {
+                throw new BusinessException("生成名片二维码失败！");
+            }
+        }
+        return fileName;
     }
 }

@@ -36,6 +36,7 @@ public class NoteController extends BaseController {
 		map.put(DATA_LIST, DateUtil.list2MapDateFormat(pageInfo.getList()));
 		map.put(TOTAL, pageInfo.getTotal());
 		map.put(STATUS, STATUS_SUCCESS);
+		logger.info("noteList总条数："+pageInfo.getTotal());
 		return map;
 	}
 

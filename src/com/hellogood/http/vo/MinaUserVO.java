@@ -1,6 +1,8 @@
 package com.hellogood.http.vo;
 
 import com.hellogood.domain.User;
+import com.hellogood.exception.BusinessException;
+import com.hellogood.utils.BeaUtils;
 
 import java.util.Date;
 
@@ -28,6 +30,56 @@ public class MinaUserVO extends BaseVO<User>{
 	private String characteristicSignature;
 
 	private String imgUrl;
+
+	private String userCode;
+
+	private String qRCodeUrl;
+
+	private String company;
+
+	private String job;
+
+	private String email;
+
+	public String getCompany() {
+		return company;
+	}
+
+	public void setCompany(String company) {
+		this.company = company;
+	}
+
+	public String getJob() {
+		return job;
+	}
+
+	public void setJob(String job) {
+		this.job = job;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public String getqRCodeUrl() {
+		return qRCodeUrl;
+	}
+
+	public void setqRCodeUrl(String qRCodeUrl) {
+		this.qRCodeUrl = qRCodeUrl;
+	}
+
+	public String getUserCode() {
+		return userCode;
+	}
+
+	public void setUserCode(String userCode) {
+		this.userCode = userCode;
+	}
 
 	public String getUserName() {
 		return userName;
@@ -122,14 +174,22 @@ public class MinaUserVO extends BaseVO<User>{
 	}
 
 	@Override
-	public void domain2Vo(User t) {
-		// TODO Auto-generated method stub
-		
+	public void domain2Vo(User domain) {
+		try {
+			BeaUtils.copyProperties(this, domain);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new BusinessException("获取用户信息失败");
+		}
 	}
 	@Override
-	public void vo2Domain(User t) {
-		// TODO Auto-generated method stub
-		
+	public void vo2Domain(User domain) {
+		try {
+			BeaUtils.copyProperties(domain, this);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new BusinessException("获取用户信息失败");
+		}
 	}
     
 }

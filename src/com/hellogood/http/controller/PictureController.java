@@ -1,6 +1,7 @@
 package com.hellogood.http.controller;
 import com.hellogood.exception.BusinessException;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
@@ -66,6 +67,7 @@ public class PictureController extends BaseController {
 	 */
 	@RequestMapping("/download.do")
 	public ResponseEntity<byte[]> download(@RequestParam("fileName") String fileName) {
+		if (StringUtils.isBlank(fileName)) throw new BusinessException("文件名不能为空");
 		logger.info("下载资源开始...");
 		HttpHeaders headers = new HttpHeaders();
 		// 文件路径

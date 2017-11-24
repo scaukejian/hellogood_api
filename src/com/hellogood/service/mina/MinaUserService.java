@@ -1,8 +1,15 @@
 package com.hellogood.service.mina;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.EncodeHintType;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.common.BitMatrix;
 import com.hellogood.constant.Code;
 import com.hellogood.constant.TokenConstants;
+import com.hellogood.domain.Folder;
+import com.hellogood.domain.FolderExample;
 import com.hellogood.domain.User;
 import com.hellogood.exception.BusinessException;
 import com.hellogood.http.vo.MinaUserVO;
@@ -12,6 +19,7 @@ import com.hellogood.service.*;
 import com.hellogood.service.redis.RedisCacheManger;
 import com.hellogood.utils.AesCbcUtil;
 import com.hellogood.utils.HttpRequest;
+import com.hellogood.utils.MatrixToImageWriter;
 import com.hellogood.utils.StaticFileUtil;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONObject;
@@ -20,7 +28,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 小程序Service
@@ -98,16 +109,10 @@ public class MinaUserService {
 		//更新登录时间并记录登录信息
 		String token = tokenService.insertOrUpdate(user.getId(), TokenConstants.TOKEN_INVALID_INSERT_NEW);
 
+		userVO.domain2Vo(user);
 		userVO.setUserId(user.getId());
 		userVO.setToken(token);
-		userVO.setBirthday(user.getBirthday());
-		userVO.setCharacteristicSignature(user.getCharacteristicSignature());
-		userVO.setImgUrl(user.getImgUrl());
 		userVO.setOpenId(openId);
-		userVO.setPhone(user.getPhone());
-		userVO.setSex(user.getSex());
-		userVO.setUserName(user.getUserName());
-		//userVO.setUnionId(unionId);
 
         return userVO;
 	}
@@ -189,4 +194,5 @@ public class MinaUserService {
         	throw new BusinessException("通信出了点小问题");
         return json.get("access_token").toString() ;
 	}
+
 }

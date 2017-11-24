@@ -61,12 +61,11 @@ public class UserController extends BaseController{
 	 */
 	@RequestMapping(value = "/save.do")
 	@ResponseBody
-	public Map<String, Object> save(@RequestBody UserVO userVO, HttpServletRequest request) throws JSONException, IOException {
+	public Map<String, Object> save(@RequestBody UserVO userVO) throws JSONException, IOException {
 		logger.info("用户信息保存：" + userVO);
-		userVO.setToken((String)request.getAttribute("token"));
 		Map<String, Object> map = new HashMap<String, Object>();
 		userService.save(userVO);
 		map.put(STATUS, STATUS_SUCCESS);
-		return map;	
+		return map;
 	}
 }
