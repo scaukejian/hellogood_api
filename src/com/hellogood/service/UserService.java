@@ -9,6 +9,7 @@ import com.hellogood.domain.*;
 import com.hellogood.exception.BusinessException;
 import com.hellogood.exception.UserRegisterOperateException;
 import com.hellogood.http.vo.MinaUserVO;
+import com.hellogood.http.vo.NoteVO;
 import com.hellogood.http.vo.UserVO;
 import com.hellogood.utils.*;
 import com.hellogood.mapper.UserMapper;
@@ -40,6 +41,8 @@ public class UserService {
     LoginService loginService;
     @Autowired
     LoginRecordsService loginRecordsService;
+    @Autowired
+    NoteService noteService;
 
     public static String STOREPATH = StaticFileUtil.getProperty("fileSystem", "storagePath");
     /**
@@ -225,6 +228,14 @@ public class UserService {
         loginService.save(login);// 保存登录表
 
         loginRecordsService.addMiniRecord(login.getId());
+
+        //为每个用户新增一条提示引导计划
+        NoteVO vo = new NoteVO();
+        vo.setMini(Code.STATUS_VALID);
+        vo.setFolderId(Code.FOLDER_DAY_ID);
+        vo.setUserId(user.getId());
+        vo.setContent("嗨，欢迎来到橙子计划，请点击右下角的加号开始计划之旅吧，右滑可删了我哟~");
+        noteService.add(vo);
 
         return user;
     }
